@@ -1,0 +1,31 @@
+# Homework 2, ECEN 5013 Spring 2016
+# Diana Southard
+EXE=hw02
+
+# Main target
+all: $(EXE)
+
+# Define for Linux compilation
+CFLG=-O3 -Wall
+LIBS=-lglut -lGLU -lGL -lm
+
+# Define for cleaning directory
+CLEAN=rm -f $(EXE) *.o *.a
+
+# Dependencies
+main.o: main.c 
+hw1.o: hw1.c hw1.h
+
+# Compile rules
+.c.o:
+	gcc -c $(CFLG) $<
+.cpp.o:
+	g++ -c $(CFLG) $<
+
+#  Link
+hw02:main.o
+	gcc -O3 -o $@ $^   $(LIBS)
+
+#  Clean
+clean:
+	$(CLEAN)
