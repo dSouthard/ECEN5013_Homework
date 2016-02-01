@@ -1,0 +1,39 @@
+# Object files
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Build Files
+*.map
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables/Output
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+*.asm
+
+# Debug files
+*.dSYM/
+
+# Swap, Temp, Backup Files
+*.swp
+*.~
+
