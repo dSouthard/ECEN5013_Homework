@@ -9,7 +9,9 @@ Diana Southard
 __Requirements:__
 We are required to make the following software:
 * **memory.c/memory.h**-This file should have some basic memory movement options. You will need to support a few functions. These need to be written on your own. As we will use them in follow up assignments and compare them with the library versions.
+
 	a. int8\_t memmove(uint8\_t* src, uint8\_t * dst, uint32_t length)
+	
 		i. This should take two pointers(one source and one destination)and a lengthof bytes to move from one location to the other.
 		ii. This will need to make sure it correctly checks overlapped areas between the two memory blocks.
 		iii. Should return an error if the move failed.
@@ -39,5 +41,4 @@ We are required to make the following software:
 		vi.Use reverse on aptr_1to reverse the entire 32 bytes.
 		vii.Use printf to print out the entire 32 byte array in a nicely formatted way.
 * **main.c** -Your final executable main function. This needs to have a single line in the code that calls the project\_1_report function
-
 
