@@ -13,37 +13,24 @@
  */
 #include<stddef.h>
 #include "hw1.h"
+#include <stdio.h>
 
-char reverse_string(char * str, int length){
+char reverse_string(char * src, int length){
     // Check input
-    if (str == NULL || !(length>0)){
+    if (src == NULL || !(length>0)){
         return 'a'; // Invalid input
     }
     
-    int i;
-    // Double-check input
-    for (i = 0; i<length-1;i++) {
-        if (str[i] == '\0')
-            break;
+	char temp;
+	length--;
+	int index;
+    for (index = 0; index < length; index++, length--){
+        temp = src[index];           // Grab character at start
+        src[index]= src[length];    // Swap with character at end
+        src[length]= temp;           // Change character at end
     }
     
-    if (i != (length-1))
-        return 'b'; // incorrectly specified length
-            
-    char reverse[length+1]; // Reversed string
-    
-    int j;
-    for (i = length-1, j = 0; i >= 0; i--, j++) {    // Manually cut off string terminator
-        reverse[j] = str[i];
-    }
-
-    reverse[length] = '\0';  // Manually add the string terminator
-    
-    // put reversed string back in place
-    for (i = 0; i <= length; i++) {
-    	str[i] = reverse[i];
-    }
-
+    printf("String: %s\n", src);
     return 0;
 }
 

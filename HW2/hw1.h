@@ -14,7 +14,7 @@
 #ifndef _HW1_H
 #define _HW1_H
 
-char reverse_string(char * str, int length);
+char reverse_string(char * src, int length);
 
 
 #endif

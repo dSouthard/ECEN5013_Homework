@@ -4,7 +4,7 @@
 
 int find_length(char* inputString);		// Function to find string length
 int main(){
-  printf("Hello World\n");
+  //printf("Hello World\n");
   
   char test0[] = "This is a string.";
   char test1[] = "some NUMmbers12345";
@@ -25,7 +25,7 @@ int main(){
   		String 1: %s\n \
   		String 2: %s\n",
   		test0, test1, test2);
-  		
+
   return 0;
 }
 
