@@ -8,6 +8,10 @@
 *
 */ 
 
+#include <stdint.h>
+#include <stddef.h>
+#include "memory.h"
+
 /*
 * memmove
 * Implementation of memmove: Moves a length of bytes from source location to
@@ -32,37 +36,32 @@ int8_t memmove(uint8_t * src, uint8_t * dst, uint32_t length) {
 	uint32_t index;
         
         
-        if (src < dst &&)
-            if ((src + length) < dst) 
-                /* < -- src -- >
-                 *                < -- dst -- > No overlap
-                 * Copy from start of src to start of dst
-                 */
-                for (index = 0; index < length; index ++ )
-                    dst[index] = src[index];
-            else
-                /* < -- src -- >
-                 *        < -- dst -- > Overlap
-                 * Copy from end of src to end of dst
-                 */
-                for (index = length-1; index >= 0; index--)
-                    dst[index] = src[index];
+        if ((src < dst) && ((src + length) > dst))
+        	/* < -- src -- >
+        	 *        < -- dst -- > Overlap
+        	 * Copy from end of src to end of dst
+        	 */
+            for (index = length; index > 0; index--)
+                 dst[index-1] = src[index-1];
         else
-            if ((dst + length) < src)
-                /* < -- dst -- >
-                 *                < -- src -- > No overlap
-                 * Copy from start of src to start of dst
-                 */
-                for (index = 0; index < length; index ++ )
-                    dst[index] = src[index];
-            else
-                 /* < -- dst -- >
-                 *        < -- src -- > Overlap
-                 * Copy from end of src to end of dst
-                 */
-                for (index = length-1; index >= 0; index--)
-                    dst[index] = src[index];
-        
+            /* All other cases: Same Resulting Action
+             * ** Case 1: **
+             * < -- src -- >
+        	 *               < -- dst -- > No Overlap
+        	 * Copy from start of src to start of dst
+        	 *
+        	 * ** Case 2: **
+             * < -- dst -- >
+             *        < -- src -- > Overlap
+             * Copy from start of src to start of dst
+             *
+             * ** Case 3: **
+             * < -- dst -- >
+             *                < -- src -- > No overlap
+             * Copy from start of src to start of dst
+             */
+             for (index = 0; index < length; index ++ )
+                 dst[index] = src[index];
         return 0;
 }
 
@@ -109,7 +108,7 @@ int8_t memzero(uint8_t * src, uint32_t length){
         return -1;
     
     uint32_t index;
-    for (index == 0; index < length; index ++)
+    for (index = 0; index < length; index ++)
         src[index] = 0;
     
     return 0;
@@ -127,7 +126,7 @@ int8_t memzero(uint8_t * src, uint32_t length){
 */
 int8_t reverse(uint8_t * src, uint32_t length){
     // Check for valid input
-    if (src == NULL || dst == NULL || !(length > 0))
+    if (src == NULL || !(length > 0))
         return -1;
     
     uint8_t temp;   // Used for swapping
