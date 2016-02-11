@@ -8,6 +8,8 @@
 *
 */ 
 
+#include "memory.h"
+
 void project_1_report() {
 
 //    Create 1 array of 32 bytes (unsigned)
@@ -33,8 +35,7 @@ void project_1_report() {
         *(aptr_1 + index) = index; 
     }
     
-/*
- *    2. aptr_3: Initialize the contents from this pointer to the end of the 
+/*  2. aptr_3: Initialize the contents from this pointer to the end of the 
 * array to zeros using memzero. Do not modify the pointer address
 */
     int8_t memzero(aptr_3, 16);
@@ -53,7 +54,7 @@ void project_1_report() {
     for (index = 0; index < 32; index++) {
         printf("%uhh: %uhh \t", index, reportArray[index]);
         // Insert line breaks
-        if (index%4 == 0)
+        if (index != 0 && index%4 == 0)
             printf("\n");
     }
 }
