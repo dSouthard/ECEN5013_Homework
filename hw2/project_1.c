@@ -20,7 +20,7 @@
 #define MEMCPY_SIZE 8
 #define MEMOVE_SIZE 16
 
-#define PRINT_LINE_SIZE 4
+#define PRINT_LINE_SIZE 8
 
 void project_1_report() {
 
@@ -44,7 +44,7 @@ void project_1_report() {
 */
     uint8_t index;
     for (index = 0; index < 16; index++) {
-        *(aptr_1 + index) = index; 
+        *(aptr_1 + index) = index+1; 
     }
     
 /*  2. aptr_3: Initialize the contents from this pointer to the end of the 
@@ -52,21 +52,55 @@ void project_1_report() {
 */
     memzero(aptr_3, ARRAY_SIZE-APTR_3_ADDRESS );
     
+    printf("Original Setup:\n");
+    
+    for (index = 0; index < ARRAY_SIZE; index++) {
+        printf("%u \t", reportArray[index]);
+        // Insert line breaks
+        if ( (index+1)%PRINT_LINE_SIZE == 0)
+            printf("\n");
+    }
+    
+    printf("\n\n");
 //    - Use memcpy to move 8 bytes from aptr_1 to aptr_3
     memcpy(aptr_1, aptr_3, MEMCPY_SIZE);
+
+	printf("After Memcpy: ptr1->pt3, 8byttes\n");
+    
+    for (index = 0; index < ARRAY_SIZE; index++) {
+        printf("%u \t", reportArray[index]);
+        // Insert line breaks
+        if ( (index+1)%PRINT_LINE_SIZE == 0)
+            printf("\n");
+    }
+    
+    printf("\n\n");
     
 //    - Use memmove to move 16 bytes from aptr_2 to aptr_1.
     memmove(aptr_2, aptr_1, MEMOVE_SIZE);
-//    - Use reverse on aptr_1 to reverse the entire 32 bytes.
-    reverse(aptr_1, ARRAY_SIZE);
     
-//    - Use printf to print out the entire 32 byte array in a nicely formatted way.
-    printf("Final Array Data:/n");
+    printf("After Memmove: pt2->pt1, 16 bytes\n");
     
     for (index = 0; index < ARRAY_SIZE; index++) {
-        printf("%uhh: %uhh \t", index, reportArray[index]);
+        printf("%u \t", reportArray[index]);
         // Insert line breaks
-        if (index != 0 && ((index%PRINT_LINE_SIZE) == 0))
+        if ( (index+1)%PRINT_LINE_SIZE == 0)
             printf("\n");
     }
+    
+    printf("\n\n");
+//    - Use reverse on aptr_1 to reverse the entire 32 bytes.
+    reverse(aptr_1, ARRAY_SIZE);
+
+//    - Use printf to print out the entire 32 byte array in a nicely formatted way.
+    printf("Final Array Data: reverse all bytes\n");
+    
+    for (index = 0; index < ARRAY_SIZE; index++) {
+        printf("%u \t", reportArray[index]);
+        // Insert line breaks
+        if ( (index+1)%PRINT_LINE_SIZE == 0)
+            printf("\n");
+    }
+    
+    printf("\n\n");
 }
