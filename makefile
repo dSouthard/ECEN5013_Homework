@@ -1,6 +1,10 @@
-# Project 1
-EXE=project
+# ECEN 5013 Spring 2016
+# Diana Southard
+# Project Makefile
+# Version 1: Project 1
 
+# Name of executable
+EXE=project
 
 # Run natively on BB or host PC
 # Determine which environment this is being run on by checking
@@ -8,84 +12,67 @@ EXE=project
 OS := $(shell uname -m)
 ARM = arm-linux-gnueabi
 
-ifeq($(OS), armv7l)
-	# Running on the BeagleBone
-	CC = $(ARM)-gcc
-	SIZE = $(ARM)-size
+ifeq ($(OS), armv7l)
+	# Running on the BeagleBone, use its values
+	CC 		= $(ARM)-gcc
+	SIZE 	= $(ARM)-size
+	OBJDUMP = $(ARM)-objdump
 else
-	CC = gcc
-	SIZE = size
+	# Running on PC, use default values
+	CC 		= gcc
+	SIZE 	= size
+	OBJDUMP = objdump
+endif
 
 
 # Extra flags to give to compiler/linker
 CFLAGS = -03 -Wall
-LDFLAGS = 
+LDFLAGS = -lm
+
+# Directory Macros
+ROOT_DIR := $(shell pwd)
+OBJ_DIR = $(ROOT_DIR)/obj
+ASM_DIR = $(ROOT_DIR)/asm
+MAP_DIR = $(ROOT_DIR)/map
 
 
 # Add a second file to your make system,sources.mk. This file needs to include
 # a list of the source files and include paths that need to be used for your
 # build system.
-# 
-# TODO
 include sources.mk
 
-
-# Directory Macrors
-OBJ_DIR = obj
-SRC_DIR = src
-INC_DIR = inc
-
-# vpath
-# Search for targets in other directories
-vpath %.h $(INCLUDES)/$(HDR_DIR)
-vapth %.o $(INCLUDES)/obj
-vpath %.c ../src
-
-
 # Find all sources
-SRCS = $(shell find $(SRC_DIR) -name '*.c')
-
+SRCS = $(wildcard *.c)
 
 # Find all objects
-OBJS = $(shell find $(OBJ_DIR) -name '*.o')
+OBJS = $(wildcard *.o)
 
-
+# project
+project: $(OBJS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
+	
 # Individual targets with header files
 memory.c: memory.h
 project_1.c: project_1.h
 
-
 # %.o
 # This should be able to individually compile (not link) any single
 # object file by specifying the object file you wish to compile
-%.o: %.c
+%.o: %.c %.h
 	$(CC) –c $(OBJ_DIR)/$@ $< $(CFLAGS) 
-	
-
-# OBJ_DIR
-# If object directory has not yet been created, auto-generate it
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
-
 
 # compile-all
 # This should compile your object files but DO NOT link
 .PHONY: compile-all
-compile-all:
+compile-all: 
 	$(OBJS)
 
 
 # Build
 # This should compile all object files and link
 .PHONY: build
-build:
-	compile-all project
-
-
-# project
-project:main.o
-	$(CC) -o $@ $^ $(CFLAGS)
-
+build: $(OBJS)
+	project
 
 # Upload
 # This should be able to take an executable (generate or already generated) 
@@ -96,7 +83,7 @@ project:main.o
 .PHONY: upload
 upload: 
 	build
-	scp project root@192.168.7.2:/home/debian/bin/release
+	scp $(EXE) root@192.168.7.2:/home/debian/bin/release/
 
 
 # %.asm
@@ -119,13 +106,23 @@ upload:
 # If assembly directory has not yet been created, auto-generate it
 $(ASM_DIR):
 	mkdir -p $(ASM_DIR)
+	
+# OBJ_DIR
+# If object directory has not yet been created, auto-generate it
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+# MAP_DIR
+# If object directory has not yet been created, auto-generate it
+$(OBJ_DIR):
+	mkdir -p $(MAP_DIR)
 
 
 #  Clean
 # This should remove all compiled objects, executables, and build output files
 .PHONY: clean
 clean:
-	rm -f $(EXE) *.o *.a *.map *.out *.s *.asm
+	rm -f $(EXE) $(OBJ_DIR) 
 
 
 
