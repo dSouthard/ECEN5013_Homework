@@ -8,6 +8,8 @@
 *
 */ 
 
+#ifndef _PROJECT_1_H
+#define _PROJECT_1_H
 
 /*
 * Performs the following operations:
@@ -28,4 +30,6 @@
 * - Use reverse on aptr_1 to reverse the entire 32 bytes.
 * - Use printf to print out the entire 32 byte array in a nicely formatted way.
 */
-void project_1_report();
+void project_1_test();
+
+#endif

@@ -7,6 +7,8 @@
 * Contains some basic memory movement options.
 *
 */ 
+#ifndef _MEMORY_H
+#define _MEMORY_H
 
 #include <stdint.h>
 
@@ -62,3 +64,6 @@ int8_t memzero(uint8_t * src, uint32_t length);
 * @return - returns 0 if move is successful, error code if otherwise
 */
 int8_t reverse(uint8_t * src, uint32_t length);
+
+
+#endif

@@ -12,25 +12,28 @@
 # 		-*.h
 # 	-src/
 # 		-*.c
-# - obj/
+# - output/
 # 	- *.o
-# - asm
 # 	- *.asm
-# - map
 # 	- *.map
 # $(EXE)
 
-ifndef _SOURCES_MK_
-	SOURCES_MK = sources
 
-PROJECT1 = $(ROOT_DIR)/project_1
-INC_DIR = inc
-SRC_DIR = src
+# Directory Macros
+PROJECT_NAME = project1
+PROJECT1_DIR = $(ROOT_DIR)/$(PROJECT_NAME)
+
+# Compilation specific flags
+CFLAGS += -I$(PROJECT1_DIR)/inc/
+# Add flag to ignore built-in functions that we overrode
 
 # vpath
 # Search for targets in other directories
-vpath %.h $(PROJECT1)/$(INC_DIR)
-vpath %.c $(PROJECT1)/$(SRC_DIR)
-vpath %.o $(OBJ_DIR)
+vpath %.h $(PROJECT1_DIR)/inc
+vpath %.c $(PROJECT1_DIR)/src
 
-endif
+
+# All objects
+OBJS = memory.o project_1.o main.o
+TEST_OBJS = memory.o project_1_test.o main_test.o
+

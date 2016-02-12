@@ -3,14 +3,18 @@
 # Project Makefile
 # Version 1: Project 1
 
-# Name of executable
-EXE=project
+# Name of project executable
+EXE = project
 
 # Run natively on BB or host PC
 # Determine which environment this is being run on by checking
 # environmental variables: currently running OS
 OS := $(shell uname -m)
 ARM = arm-linux-gnueabi
+
+# Directory Macros
+ROOT_DIR := $(shell pwd)
+OUTPUT_DIR = $(ROOT_DIR)/output
 
 ifeq ($(OS), armv7l)
 	# Running on the BeagleBone, use its values
@@ -24,105 +28,58 @@ else
 	OBJDUMP = objdump
 endif
 
-
 # Extra flags to give to compiler/linker
-CFLAGS = -03 -Wall
-LDFLAGS = -lm
+CFLAGS = -std=c99 -Wall -g -O0 -fno-builtin -fno-builtin-memcpy -fno-builtin-memmove
+# Option to create maps in the output directory
+LDFLAGS = -Xlinker -Map=$(OUTPUT_DIR)/$@.map
 
-# Directory Macros
-ROOT_DIR := $(shell pwd)
-OBJ_DIR = $(ROOT_DIR)/obj
-ASM_DIR = $(ROOT_DIR)/asm
-MAP_DIR = $(ROOT_DIR)/map
-
+# BeagleBone Login Macros
+BB_LOGIN = root@192.168.7.2
+BB_DIR = /home/debian/bin/release
 
 # Add a second file to your make system,sources.mk. This file needs to include
 # a list of the source files and include paths that need to be used for your
 # build system.
+# Only include once
 include sources.mk
 
-# Find all sources
-SRCS = $(wildcard *.c)
 
-# Find all objects
-OBJS = $(wildcard *.o)
+# Phony targets for all functions
+.PHONY: setup clean upload build test
 
-# project
-project: $(OBJS)
-	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
-	
-# Individual targets with header files
-memory.c: memory.h
-project_1.c: project_1.h
+# Make targets
+build: compile-all setup
+	$(CC) $(LDFLAGS) $(CFLAGS) $(addprefix $(OUTPUT_DIR)/,$(OBJS)) -o $(EXE)
+	@echo "project build complete."
 
-# %.o
-# This should be able to individually compile (not link) any single
-# object file by specifying the object file you wish to compile
-%.o: %.c %.h
-	$(CC) –c $(OBJ_DIR)/$@ $< $(CFLAGS) 
+compile-all: $(OBJS) setup
+	@echo "compile-all complete."
 
-# compile-all
-# This should compile your object files but DO NOT link
-.PHONY: compile-all
-compile-all: 
-	$(OBJS)
+%.o: %.c setup
+	$(CC) $(CFLAGS) -c $< -o $(OUTPUT_DIR)/$@
+	@echo "Build of $@ complete."
 
+%.S: %.c setup
+	$(CC) $(CFLAGS) -S $< -o $(OUTPUT_DIR)/$@
+	@echo ".S Build of $@ complete."
 
-# Build
-# This should compile all object files and link
-.PHONY: build
-build: $(OBJS)
-	project
+%.asm: %.c setup
+	$(CC) $(CFLAGS) -S $< -o $(OUTPUT_DIR)/$@
+	@echo ".asm Build of $@ complete."
 
-# Upload
-# This should be able to take an executable (generate or already generated) 
-# and copy it over to a release directory on the beagle bone using scp.
-# Connection information regarding the beagle bone will need to be stored
-# somehow. This can be done use the makefile directly or calling an external
-# bash script to scp the file over
-.PHONY: upload
-upload: 
-	build
-	scp $(EXE) root@192.168.7.2:/home/debian/bin/release/
+upload: build
+	ssh $(SCP_LOGIN) mkdir -p $(SCP_DIR)
+	scp $(EXE) $(SCP_LOGIN):$(SCP_DIR)
+	@echo "upload of $@ complete."
 
+test: $(TEST_OBJS) setup
+	$(CC) $(LDFLAGS) $(CFLAGS) $(TEST_OBJECTS) -o $(OUTPUT_DIR)
+	@echo "test build complete."
 
-# %.asm
-# You should be able to generate assembly output of any single individual file.
-# You can do this by providing a single target name You will need to use the -S
-# for the assembly output
-%.asm:%.c
-	$(CC) $(CFLAGS) -S -o $(ASM_DIR)/$@ -c $<
-
-
-# %.S
-# You should be able to generate assembly output of any single individual file.
-# You can do this by providing a single target name You will need to use the -S
-# for the assembly output
-%.S:%.c
-	$(CC) $(CFLAGS) -S -o $(ASM_DIR)/$@ -c $<
-
-
-# ASM_DIR
-# If assembly directory has not yet been created, auto-generate it
-$(ASM_DIR):
-	mkdir -p $(ASM_DIR)
-	
-# OBJ_DIR
-# If object directory has not yet been created, auto-generate it
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
-
-# MAP_DIR
-# If object directory has not yet been created, auto-generate it
-$(OBJ_DIR):
-	mkdir -p $(MAP_DIR)
-
-
-#  Clean
-# This should remove all compiled objects, executables, and build output files
-.PHONY: clean
 clean:
-	rm -f $(EXE) $(OBJ_DIR) 
-
-
-
+	rm -rf $(EXE) $(OUTPUT_DIR)
+	
+# setup
+# If output directory has not yet been created, auto-generate it
+setup:
+	mkdir -p $(OUTPUT_DIR)
