@@ -82,5 +82,5 @@ make clean
 * armv7l: BeagleBone Black
 * x86_64: Linux/Ubuntu (Native PC)
 
-## Supported GNU Utilities
+### Supported GNU Utilities
 * size: When the project is compiled using the build target, the gcc size functionality will provide a build report of code size. 
