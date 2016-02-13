@@ -15,6 +15,7 @@ The makefile supports the following targets:
 * make %.asm
 * make %.S
 * make upload
+* make test
 * make clean
 
 These operations are explained below.
@@ -51,6 +52,11 @@ make upload
 ```
 
 - This will take an executable and copy it over to a release directory on the BeagleBone using scp. Connection information regarding the BeagleBone is stored in the Makefile using a macro.
+
+```
+make test
+```
+- This will compile the project using a test source which tests all functions in memory.h.
 
 
 ```
