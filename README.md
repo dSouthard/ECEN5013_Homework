@@ -12,51 +12,53 @@ The makefile supports the following targets:
 * make %.o
 * make compile-all
 * make %.asm
+* make %.S
 * make upload
 * make clean
 
 These operations are explained below.
 
 ```
-**make build**
+make build
 ```
 
 - This will compile all object files and links. All output files will appear in a new directory labeled *output* with the exception of the executable **project** which will remain in the root directory.
 
 
 ```
-**make %.o**
+make %.o
 ```
 
 - This will allow to individually compile without linking any single object specified.
 
 ```
-**make compile-all**
+make compile-all
 ```
 
 - This will compile all objects without linking them.
 
 
 ```
-**make %.asm** OR **make %.S**
+make %.asm
+make %.S
 ```
 
 - This will generate the assemply output of any single file.
 
 ```
-**make upload**
+make upload
 ```
 
 - This will take an executable and copy it over to a release directory on the BeagleBone using scp. Connection information regarding the BeagleBone is stored in the Makefile using a macro.
 
 
 ```
-**make clean**
+make clean
 ```
 - This will remove all compiled objects, executables, and build output files. It will also remove the output directory, if created.
 
 
-###Compiler/Linker Flag Defaults:
+###Compiler/Linker Flag Defaults
 
 **CFLAGS**
 ```
@@ -74,14 +76,11 @@ These operations are explained below.
 ```
 -Xlinker -Map=$(OUTPUT_DIR)/$@.map	 // Enables linker maps
 ```
-###**Supported Architectures:**
+###**Supported Architectures**
 ```
 OS = armv7l 				// BeagleBone Black
-OS = x86					// Linux/Ubuntu (Native PC)
+OS = x86_64					// Linux/Ubuntu (Native PC)
 ```
 
 ## Supported GNU Utilities
-```
-DUMP_REQUEST = 1 			// Set to 1 to display object's summary information from the section headers, 0 otherwise
-SIZE_REQUEST = 1 			// Set to 1 to enable size information, 0 otherwise
-```
+* size: When the project is compiled using the build target, the gcc size functionality will provide a build report of code size. 
