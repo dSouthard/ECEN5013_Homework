@@ -1,71 +1,87 @@
-# Project 1
+# Makefile Instructions
 
 ECEN 5013 Spring 2016
 
 Diana Southard
 
-__Requirements:__
-We are required to make the following software:
+###**Instruction for compiling with make**
 
-* **memory.c/memory.h**-This file should have some basic memory movement options. You will need to support a few functions. These need to be written on your own. As we will use them in follow up assignments and compare them with the library versions.
+**Makefile Targets**
+The makefile supports the following targets:
+* make build
+* make %.o
+* make compile-all
+* make %.asm
+* make upload
+* make clean
 
-	a. int8\_t memmove(uint8\_t* src, uint8\_t * dst, uint32_t length)
-	
-		i. This should take two pointers (one source and one destination) and a lengthof bytes to move from one location to the other.
-		
-		ii. This will need to make sure it correctly checks overlapped areas between the two memory blocks.
-		
-		iii. Should return an error if the move failed.
-		
-	b. int8\_t memcpy(uint8\_t* src, uint8\_t * dst, uint32_t length)
-	
-		i. This should take two pointers (one source and one destination) and a lengthof bytes to copy from one location to the other.
-		
-		ii. This will need to make sure it correctly checks overlapped areas between the two memory blocks.
-		
-		iii. Should return an error if the move failed.
-		
-	c. int8\_t memzero(uint8\_t* src,uint32_t length)
-	
-		i. This should take a pointer to a memory location and a length in bytes and zero out all of the memory.
-		
-		ii. Should return an error if the move failed.
-		
-	d. int8\_t reverse(uint8\_t* src, uint32_t length)
-	
-		i. This should take a pointer to a memory location and a length in bytes and reverse the order of all of the bytes
-		
-		ii. This should be the same function from homework 2, but let us remove the conceptual dependency on the term string. 
-		
-	e. All Functions should return a non-zero return code for any error that might occur in the process of the function. A zero should be returned if successful
-	
-* **project_1.c/project_1.h** -This file should have a few functions that relate to the higher level tasks within this project. One function in particular needs to be provided:
+These operations are explained below.
 
-	a.void project\_1_report();
+```
+**make build**
+```
 
-		i. Create 1 array of 32 bytes(unsigned).
+- This will compile all object files and links. All output files will appear in a new directory labeled *output* with the exception of the executable **project** which will remain in the root directory.
 
-		ii. Create three pointers to two various points in this array:
 
-			1.aptr_1: Initialize this pointer address to be the beginning of the array
+```
+**make %.o**
+```
 
-			2.aptr_2: Initialize this second pointer to be the address of the 8th element in the array.
+- This will allow to individually compile without linking any single object specified.
 
-			3.aptr_3: Initialize this third pointer to be the address of the 16th element in the array.
+```
+**make compile-all**
+```
 
-		iii. Initialize memory at two of the pointers:
-		
-			1.aptr\_1: Initialize 16 bytes starting at this aptr\_1 to thenumbers from 1-16. Do not modify the pointer address.
-			
-			2.aptr_3: Initialize the contents from this pointer to the end of the array to zeros using memzero. Do not modify the pointer address
-			
-		iv. Use memcpyto move 8 bytes from aptr\_1 to aptr_3
-		
-		v. Use memmove to move 16 bytes from aptr\_2 to aptr_1. 
-		
-		vi. Use reverse on aptr\_1 to reverse the entire 32 bytes.
-		
-		vii. Use printf to print out the entire 32 byte array in a nicely formatted way.
-		
-* **main.c** -Your final executable main function. This needs to have a single line in the code that calls the project\_1_report function
+- This will compile all objects without linking them.
 
+
+```
+**make %.asm** OR **make %.S**
+```
+
+- This will generate the assemply output of any single file.
+
+```
+**make upload**
+```
+
+- This will take an executable and copy it over to a release directory on the BeagleBone using scp. Connection information regarding the BeagleBone is stored in the Makefile using a macro.
+
+
+```
+**make clean**
+```
+- This will remove all compiled objects, executables, and build output files. It will also remove the output directory, if created.
+
+
+###Compiler/Linker Flag Defaults:
+
+**CFLAGS**
+```
+-O0 						// This level turns off optimization entirely
+-g 							// add debug info to program, default
+-Wall 						// enable warnings, default
+-std=c99					// Determines c99 Standard as the language
+-I$(PROJECT1_DIR)/inc/		// Includes header file for compiler
+-fno-builtin 				// Directs compiler to ignore built-in functions
+-fno-builtin-memcpy			// Directs compiler to ignore built-in memcpy function
+-fno-builtin-memmove		// Directs compiler to ignore built-in memmove function
+```
+
+**LDFLAGS**
+```
+-Xlinker -Map=$(OUTPUT_DIR)/$@.map	 // Enables linker maps
+```
+###**Supported Architectures:**
+```
+OS = armv7l 				// BeagleBone Black
+OS = x86					// Linux/Ubuntu (Native PC)
+```
+
+## Supported GNU Utilities
+```
+DUMP_REQUEST = 1 			// Set to 1 to display object's summary information from the section headers, 0 otherwise
+SIZE_REQUEST = 1 			// Set to 1 to enable size information, 0 otherwise
+```

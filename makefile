@@ -6,11 +6,13 @@
 # Name of project executable
 EXE = project
 
+SHELL := /bin/bash
+
 # Run natively on BB or host PC
 # Determine which environment this is being run on by checking
 # environmental variables: currently running OS
 OS := $(shell uname -m)
-ARM = arm-linux-gnueabi
+ARM = arm-linux-gnueabihf
 
 # Directory Macros
 ROOT_DIR := $(shell pwd)
@@ -28,12 +30,16 @@ else
 	OBJDUMP = objdump
 endif
 
+SIZE_REQUEST = 1
+DUMP_REQUEST = 1
+SET_FLAG = 1
+
 # Extra flags to give to compiler/linker
-CFLAGS = -std=c99 -Wall -g -O0 -fno-builtin -fno-builtin-memcpy -fno-builtin-memmove
+CFLAGS = -std=c99 -Wall -g -O0
 # Option to create maps in the output directory
 LDFLAGS = -Xlinker -Map=$(OUTPUT_DIR)/$@.map
 
-# BeagleBone Login Macros
+# BeagleBone Macros
 BB_LOGIN = root@192.168.7.2
 BB_DIR = /home/debian/bin/release
 
@@ -43,38 +49,32 @@ BB_DIR = /home/debian/bin/release
 # Only include once
 include sources.mk
 
-
 # Phony targets for all functions
 .PHONY: setup clean upload build test
 
 # Make targets
 build: compile-all setup
 	$(CC) $(LDFLAGS) $(CFLAGS) $(addprefix $(OUTPUT_DIR)/,$(OBJS)) -o $(EXE)
-	@echo "project build complete."
+	$(SIZE) $(EXE)
 
 compile-all: $(OBJS) setup
-	@echo "compile-all complete."
 
 %.o: %.c setup
 	$(CC) $(CFLAGS) -c $< -o $(OUTPUT_DIR)/$@
-	@echo "Build of $@ complete."
+#	@if [[$(DUMP_REQUEST) == 1]]; then $(OBJDUMP) -h $(OUTPUT_DIR)/$@; fi
 
 %.S: %.c setup
 	$(CC) $(CFLAGS) -S $< -o $(OUTPUT_DIR)/$@
-	@echo ".S Build of $@ complete."
 
 %.asm: %.c setup
 	$(CC) $(CFLAGS) -S $< -o $(OUTPUT_DIR)/$@
-	@echo ".asm Build of $@ complete."
 
 upload: build
-	ssh $(SCP_LOGIN) mkdir -p $(SCP_DIR)
-	scp $(EXE) $(SCP_LOGIN):$(SCP_DIR)
-	@echo "upload of $@ complete."
+	ssh $(BB_LOGIN) mkdir -p $(BB_DIR)
+	scp $(EXE) $(BB_LOGIN):$(BB_DIR)
 
 test: $(TEST_OBJS) setup
 	$(CC) $(LDFLAGS) $(CFLAGS) $(TEST_OBJECTS) -o $(OUTPUT_DIR)
-	@echo "test build complete."
 
 clean:
 	rm -rf $(EXE) $(OUTPUT_DIR)

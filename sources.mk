@@ -23,15 +23,13 @@
 PROJECT_NAME = project1
 PROJECT1_DIR = $(ROOT_DIR)/$(PROJECT_NAME)
 
-# Compilation specific flags
+# Tell compiler where to look for header files
 CFLAGS += -I$(PROJECT1_DIR)/inc/
 # Add flag to ignore built-in functions that we overrode
+CFLAGS += -fno-builtin -fno-builtin-memcpy -fno-builtin-memmove
 
-# vpath
-# Search for targets in other directories
-vpath %.h $(PROJECT1_DIR)/inc
+# vpath to search for source files
 vpath %.c $(PROJECT1_DIR)/src
-
 
 # All objects
 OBJS = memory.o project_1.o main.o

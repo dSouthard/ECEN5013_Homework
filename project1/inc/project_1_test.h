@@ -14,7 +14,7 @@
 #define _PROJECT_1_TEST_H
 void printResults(uint8_t * testArrayPrint);
 void initializeData(uint8_t * testArrayInitialize);
-void project_1_report();
+void project_1_test();
 
 #endif
 
