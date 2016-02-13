@@ -7,6 +7,7 @@ Diana Southard
 ###**Instruction for compiling with make**
 
 **Makefile Targets**
+
 The makefile supports the following targets:
 * make build
 * make %.o
@@ -77,10 +78,9 @@ make clean
 -Xlinker -Map=$(OUTPUT_DIR)/$@.map	 // Enables linker maps
 ```
 ###**Supported Architectures**
-```
-OS = armv7l 				// BeagleBone Black
-OS = x86_64					// Linux/Ubuntu (Native PC)
-```
+
+* armv7l: BeagleBone Black
+* x86_64: Linux/Ubuntu (Native PC)
 
 ## Supported GNU Utilities
 * size: When the project is compiled using the build target, the gcc size functionality will provide a build report of code size. 
