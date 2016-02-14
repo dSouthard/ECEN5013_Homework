@@ -72,14 +72,14 @@ This will remove all compiled objects, executables, and build output files. It w
 
 **CFLAGS**
 ```
--O0 						// This level turns off optimization entirely
--g 							// Adds debugging info to program
--Wall 						// Enables all compiler's warning messages
--std=c99					// Determines c99 Standard as the language
--I$(PROJECT1_DIR)/inc/		// Includes header file for compiler
--fno-builtin 				// Directs compiler to ignore built-in functions
--fno-builtin-memcpy			// Directs compiler to ignore built-in memcpy function
--fno-builtin-memmove		// Directs compiler to ignore built-in memmove function
+-O0 							// This level turns off optimization entirely
+-g 								// Adds debugging info to program
+-Wall 							// Enables all compiler's warning messages
+-std=c99						// Determines c99 Standard as the language
+-I$(PROJECT1_DIR)/inc/			// Includes header file for compiler
+-fno-builtin 					// Directs compiler to ignore built-in functions
+-fno-builtin-memcpy				// Directs compiler to ignore built-in memcpy function
+-fno-builtin-memmove			// Directs compiler to ignore built-in memmove function
 ```
 
 **LDFLAGS**
