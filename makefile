@@ -5,6 +5,7 @@
 
 # Name of project executable
 EXE = project
+TEST_EXE = test_project
 
 SHELL := /bin/bash
 
@@ -77,10 +78,10 @@ upload: build
 	scp $(EXE) $(BB_LOGIN):$(BB_DIR)
 
 test: $(TEST_OBJS) setup
-	@$(CC) $(LDFLAGS) $(CFLAGS) $(TEST_OBJECTS) -o $(OUTPUT_DIR)
+	@$(CC) $(LDFLAGS) $(CFLAGS) $(addprefix $(OUTPUT_DIR)/,$(TEST_OBJS)) -o $(TEST_EXE)
 
 clean:
-	@$(RMDIR) $(EXE) $(OUTPUT_DIR)
+	@$(RMDIR) $(EXE) $(TEST_EXE) $(OUTPUT_DIR)
 	
 # setup
 # If output directory has not yet been created, auto-generate it

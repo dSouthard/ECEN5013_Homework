@@ -12,6 +12,10 @@
 
 #ifndef _PROJECT_1_TEST_H
 #define _PROJECT_1_TEST_H
+
+#include <stdint.h>
+
+
 void printResults(uint8_t * testArrayPrint);
 void initializeData(uint8_t * testArrayInitialize);
 void project_1_test();
