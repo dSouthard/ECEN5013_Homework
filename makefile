@@ -32,6 +32,10 @@ endif
 
 DUMP_REQUEST = 1
 
+# Macros to help suppress makefile output
+MKDIR = mkdir -p
+RMDIR = rm -rf
+
 # Extra flags to give to compiler/linker
 CFLAGS = -std=c99 -Wall -g -O0
 # Option to create maps in the output directory
@@ -52,33 +56,33 @@ include sources.mk
 
 # Make targets
 build: compile-all setup
-	$(CC) $(LDFLAGS) $(CFLAGS) $(addprefix $(OUTPUT_DIR)/,$(OBJS)) -o $(EXE)
+	@$(CC) $(LDFLAGS) $(CFLAGS) $(addprefix $(OUTPUT_DIR)/,$(OBJS)) -o $(EXE)
 	@echo "The project size is: "
 	$(SIZE) $(EXE)
 
 compile-all: $(OBJS) setup
 
 %.o: %.c setup
-	$(CC) $(CFLAGS) -c $< -o $(OUTPUT_DIR)/$@
+	@$(CC) $(CFLAGS) -c $< -o $(OUTPUT_DIR)/$@
 #	@if [[$(DUMP_REQUEST) == 1]]; then $(OBJDUMP) -h $(OUTPUT_DIR)/$@; fi
 
 %.S: %.c setup
-	$(CC) $(CFLAGS) -S $< -o $(OUTPUT_DIR)/$@
+	@$(CC) $(CFLAGS) -S $< -o $(OUTPUT_DIR)/$@
 
 %.asm: %.c setup
-	$(CC) $(CFLAGS) -S $< -o $(OUTPUT_DIR)/$@
+	@$(CC) $(CFLAGS) -S $< -o $(OUTPUT_DIR)/$@
 
 upload: build
-	ssh $(BB_LOGIN) mkdir -p $(BB_DIR)
+	ssh $(BB_LOGIN) $(MKDIR) $(BB_DIR)
 	scp $(EXE) $(BB_LOGIN):$(BB_DIR)
 
 test: $(TEST_OBJS) setup
-	$(CC) $(LDFLAGS) $(CFLAGS) $(TEST_OBJECTS) -o $(OUTPUT_DIR)
+	@$(CC) $(LDFLAGS) $(CFLAGS) $(TEST_OBJECTS) -o $(OUTPUT_DIR)
 
 clean:
-	rm -rf $(EXE) $(OUTPUT_DIR)
+	@$(RMDIR) $(EXE) $(OUTPUT_DIR)
 	
 # setup
 # If output directory has not yet been created, auto-generate it
 setup:
-	mkdir -p $(OUTPUT_DIR)
+	@$(MKDIR) $(OUTPUT_DIR)
