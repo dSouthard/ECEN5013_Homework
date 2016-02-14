@@ -30,9 +30,7 @@ else
 	OBJDUMP = objdump
 endif
 
-SIZE_REQUEST = 1
 DUMP_REQUEST = 1
-SET_FLAG = 1
 
 # Extra flags to give to compiler/linker
 CFLAGS = -std=c99 -Wall -g -O0
@@ -55,6 +53,7 @@ include sources.mk
 # Make targets
 build: compile-all setup
 	$(CC) $(LDFLAGS) $(CFLAGS) $(addprefix $(OUTPUT_DIR)/,$(OBJS)) -o $(EXE)
+	@echo "The project size is: "
 	$(SIZE) $(EXE)
 
 compile-all: $(OBJS) setup

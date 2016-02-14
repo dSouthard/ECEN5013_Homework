@@ -86,7 +86,7 @@ int8_t memcpy(uint8_t * src, uint8_t * dst, uint32_t length) {
 		return 0;
 	
 	// memcpy does not check for overlap
-	int index;
+	uint32_t index;
 	for (index = 0; index < length; index ++ ) {
 		dst[index] = src[index];
 	}

@@ -4,7 +4,7 @@ ECEN 5013 Spring 2016
 
 Diana Southard
 
-###**Instruction for compiling with make**
+### Instruction for compiling with make
 
 **Makefile Targets**
 
@@ -18,26 +18,29 @@ The makefile supports the following targets:
 * make test
 * make clean
 
+
 These operations are explained below.
 
 ```
 make build
 ```
 
-- This will compile all object files and links. All output files will appear in a new directory labeled *output* with the exception of the executable **project** which will remain in the root directory.
+This will compile all object files and links. All output files will appear in a new directory labeled *output* with the exception of the executable **project** which will remain in the root directory.
+
+
 
 
 ```
 make %.o
 ```
 
-- This will allow to individually compile without linking any single object specified.
+This will allow to individually compile without linking any single object specified.
 
 ```
 make compile-all
 ```
 
-- This will compile all objects without linking them.
+This will compile all objects without linking them.
 
 
 ```
@@ -45,27 +48,27 @@ make %.asm
 make %.S
 ```
 
-- This will generate the assemply output of any single file.
+This will generate the assemply output of any single file.
 
 ```
 make upload
 ```
 
-- This will take an executable and copy it over to a release directory on the BeagleBone using scp. Connection information regarding the BeagleBone is stored in the Makefile using a macro.
+This will take an executable and copy it over to a release directory on the BeagleBone using scp. Connection information regarding the BeagleBone is stored in the Makefile using a macro.
 
 ```
 make test
 ```
-- This will compile the project using a test source which tests all functions in memory.h.
+This will compile the project using a test source which tests all functions in memory.h.
 
 
 ```
 make clean
 ```
-- This will remove all compiled objects, executables, and build output files. It will also remove the output directory, if created.
+This will remove all compiled objects, executables, and build output files. It will also remove the output directory, if created.
 
 
-###Compiler/Linker Flag Defaults
+### Compiler/Linker Flag Defaults
 
 **CFLAGS**
 ```
@@ -83,7 +86,7 @@ make clean
 ```
 -Xlinker -Map=$(OUTPUT_DIR)/$@.map	 // Enables linker maps
 ```
-###**Supported Architectures**
+### Supported Architectures
 
 * armv7l: BeagleBone Black
 * x86_64: Linux/Ubuntu (Native PC)
