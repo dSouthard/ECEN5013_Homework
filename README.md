@@ -73,8 +73,8 @@ This will remove all compiled objects, executables, and build output files. It w
 **CFLAGS**
 ```
 -O0 						// This level turns off optimization entirely
--g 							// add debug info to program, default
--Wall 						// enable warnings, default
+-g 							// Adds debugging info to program
+-Wall 						// Enables all compiler's warning messages
 -std=c99					// Determines c99 Standard as the language
 -I$(PROJECT1_DIR)/inc/		// Includes header file for compiler
 -fno-builtin 				// Directs compiler to ignore built-in functions
@@ -84,7 +84,7 @@ This will remove all compiled objects, executables, and build output files. It w
 
 **LDFLAGS**
 ```
--Xlinker -Map=$(OUTPUT_DIR)/$@.map	 // Enables linker maps
+-Wl,-Map=$(OUTPUT_DIR)/$@.map	 // Enables linker maps
 ```
 ### Supported Architectures
 

@@ -39,7 +39,7 @@ RMDIR = rm -rf
 # Extra flags to give to compiler/linker
 CFLAGS = -std=c99 -Wall -g -O0
 # Option to create maps in the output directory
-LDFLAGS = -Xlinker -Map=$(OUTPUT_DIR)/$@.map
+LDFLAGS = -Wl,-Map=$(OUTPUT_DIR)/$@.map
 
 # BeagleBone Macros
 BB_LOGIN = root@192.168.7.2
