@@ -1,0 +1,15 @@
+22:40:30 **** Incremental Build of configuration Debug for project LEDFader ****
+make all 
+Building file: ../Sources/main.c
+Invoking: Cross ARM C Compiler
+arm-none-eabi-gcc -mcpu=cortex-m0plus -mthumb -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections  -g3 -I"../Sources" -I"../Includes" -std=c99 -MMD -MP -MF"Sources/main.d" -MT"Sources/main.o" -c -o "Sources/main.o" "../Sources/main.c"
+Finished building: ../Sources/main.c
+ 
+Building target: LEDFader.elf
+Invoking: Cross ARM C++ Linker
+arm-none-eabi-g++ -mcpu=cortex-m0plus -mthumb -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections  -g3 -T "MKL25Z128xxx4_flash.ld" -Xlinker --gc-sections -L"/home/diana/Documents/ECEN5013/ECEN5013_Homework/project2-kds/LEDFader/Project_Settings/Linker_Files" -Wl,-Map,"LEDFader.map" -specs=nano.specs -specs=nosys.specs -o "LEDFader.elf"  ./Sources/main.o  ./Project_Settings/Startup_Code/startup_MKL25Z4.o ./Project_Settings/Startup_Code/system_MKL25Z4.o   
+Finished building target: LEDFader.elf
+ 
+
+22:40:30 Build Finished (took 170ms)
+

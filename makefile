@@ -26,9 +26,9 @@ ifeq ($(OS), armv7l)
 	OBJDUMP = $(ARM)-objdump
 else
 	# Running on PC, use default values
-	CC 		= gcc
-	SIZE 	= size
-	OBJDUMP = objdump
+	CC 		= $(ARM)-gcc
+	SIZE 	= $(ARM)-size
+	OBJDUMP = $(ARM)-objdump
 endif
 
 DUMP_REQUEST = 1

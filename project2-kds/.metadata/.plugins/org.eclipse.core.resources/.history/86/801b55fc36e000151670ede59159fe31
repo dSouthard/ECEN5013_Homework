@@ -1,0 +1,77 @@
+/*
+ * ECEN 5013 Spring 2016
+ * Project 2: LED Fader on the Freescale Board
+ * Diana Southard
+ *
+ * Goal: Write a simple set of timer routines that can cycle through the various
+ * color schemes of the RGB LED to produce a colorful LED Fader that cycles through
+ * all the colors of a rainbow. Configure the microprocessor to run at maximum clock
+ * frequency.
+ *
+ *
+ * Based off tutorial found at: http://visualgdb.com/tutorials/arm/kinetis/kl25z-rgb-led/
+ */
+
+#include "MKL25Z4.h"
+
+
+
+void Delay();
+void TPM2_Handler();
+
+int main(void)
+{
+
+	MCG_BASE_PTR->C1 = MCG_C1_IREFS_MASK | MCG_C1_IRCLKEN_MASK;
+	MCG_BASE_PTR->C2 = MCG_C2_IRCS_MASK; //Select fast internal clock
+	SIM_BASE_PTR->SCGC6 |= SIM_SCGC6_TPM2_MASK; //Enable TPM2 clock
+	SIM_BASE_PTR->SOPT2 |= SIM_SOPT2_TPMSRC(3);
+
+	/*
+	 * Now we will enable the TPM2 timer, and configure it to reset itself 2 times per second. To achieve that we will divide the fast 4 MHz clock by 128 by setting the prescaler bits to 7 and further divide it by 16384 by setting the modulus register to 16383:
+	 */
+
+	TPM2_BASE_PTR->SC = TPM_SC_CMOD(1) | TPM_SC_PS(7);
+	TPM2_BASE_PTR->MOD = 16383;
+
+	/*
+	 * we need to configure the timer to raise an interrupt on overflow and enable the timer interrupt in the interrupt controller:
+	 */
+	TPM2_BASE_PTR->SC |= TPM_SC_TOIE_MASK;
+	NVIC_BASE_PTR->ISER = 1 << 19;
+
+	SIM_BASE_PTR->SCGC5 |= SIM_SCGC5_PORTB_MASK; //Enable TPM2 clock
+	PORTB_BASE_PTR->PCR[18] = PORT_PCR_MUX(1);
+
+	PTB_BASE_PTR->PDDR = 1<<18;
+
+	/*
+	 * Don’t forget to remove the code writing to PSOR and PCOR registers from main(). Replace the previous for() loop with the following code:
+	 */
+	volatile int count;
+	for(;;)
+	{
+	    count = TPM2_BASE_PTR->CNT;
+	}
+
+	return 0;
+}
+
+/*
+ * Now we will add the interrupt handler that will toggle the PTB18 pin each time the timer generates an interrupt:
+ *
+ */
+void TPM2_Handler()
+{
+    PTB_BASE_PTR->PTOR = 1 << 18;
+    TPM2_BASE_PTR->SC |= TPM_SC_TOF_MASK;
+}
+
+void Delay()
+{
+	int i;
+	for (i = 0;i<1000000; i++)
+		asm("nop");
+}
+
+

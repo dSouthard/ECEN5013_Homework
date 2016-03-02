@@ -1,0 +1,55 @@
+/*
+ * ECEN 5013 Spring 2016
+ * Project 2: LED Fader on the Freescale Board
+ * Diana Southard
+ *
+ * Goal: Write a simple set of timer routines that can cycle through the various
+ * color schemes of the RGB LED to produce a colorful LED Fader that cycles through
+ * all the colors of a rainbow. Configure the microprocessor to run at maximum clock
+ * frequency.
+ *
+ *
+ * Based off tutorial found at: http://visualgdb.com/tutorials/arm/kinetis/kl25z-rgb-led/
+ */
+
+#include "MKL25Z4.h"
+#include <math.h>
+
+
+void Delay(int cycles);
+void TPM2_Handler();
+
+void Delay(int cycles)
+{
+    while (cycles--)
+    __asm("nop");
+}
+
+int main()
+{
+    MCG_BASE_PTR->C1 = MCG_C1_IREFS_MASK | MCG_C1_IRCLKEN_MASK;
+    MCG_BASE_PTR->C2 = MCG_C2_IRCS_MASK;
+    SIM_BASE_PTR->SCGC6 |= SIM_SCGC6_TPM2_MASK;
+    SIM_BASE_PTR->SOPT2 |= SIM_SOPT2_TPMSRC(3);
+
+    TPM2_BASE_PTR->SC = TPM_SC_CMOD(1) | TPM_SC_PS(0);
+    TPM2_BASE_PTR->MOD = 16383;
+
+    SIM_BASE_PTR->SCGC5 |= SIM_SCGC5_PORTB_MASK;
+    PORTB_BASE_PTR->PCR[18] = PORTB_BASE_PTR->PCR[19] = PORT_PCR_MUX(3);
+
+    PTB_BASE_PTR->PDDR = 1 << 18;
+
+    TPM2_BASE_PTR->CONTROLS[0].CnSC = TPM_CnSC_MSB_MASK | TPM_CnSC_ELSA_MASK;
+    TPM2_BASE_PTR->CONTROLS[1].CnSC = TPM_CnSC_MSB_MASK | TPM_CnSC_ELSB_MASK;
+
+    for(double phase = 0;;phase += 0.005)
+    {
+        double portion = 0.5 + sin(phase) / 2;
+        TPM2_BASE_PTR->CONTROLS[0].CnV = TPM2_BASE_PTR->CONTROLS[1].CnV = TPM2_BASE_PTR->MOD * portion;
+        Delay(1000);
+    }
+    return 0;
+}
+
+

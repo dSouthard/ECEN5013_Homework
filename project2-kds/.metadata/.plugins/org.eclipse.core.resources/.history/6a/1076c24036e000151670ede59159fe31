@@ -1,0 +1,32 @@
+/*
+ * ECEN 5013 Spring 2016
+ * Project 2: LED Fader on the Freescale Board
+ * Diana Southard
+ *
+ * Goal: Write a simple set of timer routines that can cycle through the various
+ * color schemes of the RGB LED to produce a colorful LED Fader that cycles through
+ * all the colors of a rainbow. Configure the microprocessor to run at maximum clock
+ * frequency.
+ *
+ *
+ * Based off tutorial found at: http://visualgdb.com/tutorials/arm/kinetis/kl25z-rgb-led/
+ */
+
+#include "MKL25Z4.h"
+
+
+
+static int i = 0;
+
+int main(void)
+{
+
+	MCG_BASE_PTR->C1 = MCG_C1_IREFS_MASK | MCG_C1_IRCLKEN_MASK;
+	MCG_BASE_PTR->C2 = MCG_C2_IRCS_MASK; //Select fast internal clock
+	SIM_BASE_PTR->SCGC6 |= SIM_SCGC6_TPM2_MASK; //Enable TPM2 clock
+	SIM_BASE_PTR->SOPT2 |= SIM_SOPT2_TPMSRC(3);
+
+
+    return 0;
+}
+
