@@ -1,0 +1,133 @@
+/*
+* ***** memoryDMA.c *****
+* Diana Southard
+* ECEN 5013 Spring 2016
+* Project 2
+*
+* Contains some basic memory movement options.
+* Adjusted to use DMA operation for data transfer
+*
+*/
+
+#include <stdint.h>
+#include <stddef.h>
+#include "memoryDMA.h"
+
+void dmaSetup() {
+	// Using 8-bit transfer on DMA Channel 0
+	DMA0->DMA[DMA_CH0].DCR = DMA_DCR_SSIZE(TRANSFER_8BIT) | DMA_DCR_DSIZE(TRANSFER_8BIT);
+}
+
+/* SAR0 and DAR0 change after each data transfer
+ * However, memzero does not take in a dst register
+ * So keep the incrementing in two functions */
+
+void srcIncrement() {
+	DMA0->DMA[DMA_CH0].DCR |= DMA_DCR_SINC(INCREMENT_SIZE);
+}
+
+void dstIncrement () {
+	DMA0->DMA[DMA_CH0].DCR |= DMA_DCR_DINC(INCREMENT_SIZE);
+}
+
+// Setup source register to not increment during transfer --> stay in same spot
+void srcNoIncrement() {
+	DMA0->DMA[DMA_REG].DCR &= ~DMA_DCR_SINC_MASK;
+}
+
+
+// Load src and dst addresses.
+void loadSrc(uint8_t * src) {
+	DMA0->DMA[DMA_CH0].SAR = (uint32_t)src;
+}
+
+void loadDst(uint8_t * dst) {
+	DMA0->DMA[DMA_CH0].DAR = (uint32_t)dst;
+}
+
+// Load the memory transfer byte size
+void loadByteSize(uint32_t size) {
+	DMA0->DMA[DMA_CH0].DSR_BCR =  DMA_DSR_BCR_BCR_MASK & size;
+}
+void transferData() {
+	// Start the transfer
+	DMA0->DMA[DMA_CH0].DCR |= DMA_DCR_START_MASK;
+
+	// Wait while transferring data
+	while (!(DMA0->DMA[DMA_CH0].DSR_BCR & DMA_DSR_BCR_DONE_MASK))
+	{};
+}
+
+/*
+* memmove
+* Implementation of memmove: Moves a length of bytes from source location to
+* destination location. This checks overlapped areas between the two memory
+* blocks. Returns an error if the move failed.
+*
+* @param src - source location for memory move
+* @param dst - destination location for memory move
+* @param length - length of memory desired to move
+* @return - returns 0 if move is successful, error code if otherwise
+*/
+int8_t memmove(uint8_t * src, uint8_t * dst, uint32_t length) {
+    // Check for invalid input
+	if (src == NULL || dst == NULL || !(length > 0))
+		return -1;
+
+	// Check for duplicate input
+	if ( dst == src)
+		return 0;
+
+	// memmove must check for overlap
+	uint32_t index;
+
+
+        if ((src < dst) && ((src + length) > dst))
+        	/* < -- src -- >
+        	 *        < -- dst -- > Overlap
+        	 * Copy from end of src to end of dst
+        	 * DMA CANNOT handle the transfer, perform it normally
+        	 */
+            for (index = length; index > 0; index--)
+                 dst[index-1] = src[index-1];
+        else {
+            /* All other cases: DMA CAN handle the transfer!
+             * Transfer left -> right
+             */
+
+        	// Setup increment of src/dst DMA registers
+        	srcIncrement();
+        	dstIncrement();
+
+        	// Load registers with value
+        	loadSrc(src);
+        	loadDst(dst);
+
+        	transferData();
+        }
+        return 0;
+}
+
+/*
+* Implementation of memzero: Takes a pointer to a memory location and a length
+* in bytes and zeros out all of the memory. Returns an error if the move failed.
+*
+* @param src - source location for memory to be zeroed out
+* @param length - length of memory to be zeroed out
+* @return - returns 0 if move is successful, error code if otherwise
+*/
+int8_t memzero(uint8_t * src, uint32_t length){
+    // Check for invalid input
+    if (src == NULL || !(length > 0))
+        return -1;
+
+    srcNoIncrement();
+    dstIncrement();
+    loadSrc(&zero);
+    loadDst(src);
+    loadByteSize(length);
+
+    transferData();
+    return 0;
+}
+

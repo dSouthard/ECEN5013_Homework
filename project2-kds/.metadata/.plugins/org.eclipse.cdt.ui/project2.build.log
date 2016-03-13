@@ -1,0 +1,15 @@
+22:54:27 **** Incremental Build of configuration Debug for project project2 ****
+make all 
+Building file: ../Sources/memoryDMA.c
+Invoking: Cross ARM C Compiler
+arm-none-eabi-gcc -mcpu=cortex-m0plus -mthumb -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections  -g3 -I"../Sources" -I"../Includes" -std=c99 -fno-builtin -fno-builtin-memcpy -fno-builtin-memmove -MMD -MP -MF"Sources/memoryDMA.d" -MT"Sources/memoryDMA.o" -c -o "Sources/memoryDMA.o" "../Sources/memoryDMA.c"
+Finished building: ../Sources/memoryDMA.c
+ 
+Building target: project2.elf
+Invoking: Cross ARM C++ Linker
+arm-none-eabi-g++ -mcpu=cortex-m0plus -mthumb -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections  -g3 -T "MKL25Z128xxx4_flash.ld" -Xlinker --gc-sections -L"/home/diana/Documents/ECEN5013/ECEN5013_Homework/project2-kds/project2/Project_Settings/Linker_Files" -Wl,-Map,"project2.map" -specs=nano.specs -specs=nosys.specs -o "project2.elf"  ./Sources/main.o ./Sources/memory.o ./Sources/memoryDMA.o ./Sources/profiler.o ./Sources/timer.o  ./Project_Settings/Startup_Code/startup_MKL25Z4.o ./Project_Settings/Startup_Code/system_MKL25Z4.o   
+Finished building target: project2.elf
+ 
+
+22:54:27 Build Finished (took 163ms)
+

@@ -1,0 +1,13 @@
+21:40:50 **** Build of configuration Default for project memory ****
+make memory 
+cc     memory.c   -o memory
+memory.c:26:8: error: conflicting types for ‘memmove’
+ int8_t memmove(uint8_t * src, uint8_t * dst, uint32_t length) {
+        ^
+memory.c:79:8: error: conflicting types for ‘memcpy’
+ int8_t memcpy(uint8_t * src, uint8_t * dst, uint32_t length) {
+        ^
+make: *** [memory] Error 1
+
+21:40:50 Build Finished (took 213ms)
+

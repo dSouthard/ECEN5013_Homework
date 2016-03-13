@@ -1,0 +1,28 @@
+/*
+ * timer.h
+ *
+ *  Created on: Mar 12, 2016
+ *      Author: diana
+ */
+
+#ifndef INCLUDES_TIMER_H_
+#define INCLUDES_TIMER_H_
+
+#define LED_INTERRUPT 0
+#define PROFILER_INTERRUPT 1
+
+
+#define RED_LED	0
+#define GREEN_LED 1
+#define BLUE_LED 1
+
+void initializeClock();
+void setupTPM();
+void TPM1_IRQHandler();
+void TPM0_IRQHandler();
+
+
+
+
+
+#endif /* INCLUDES_TIMER_H_ */

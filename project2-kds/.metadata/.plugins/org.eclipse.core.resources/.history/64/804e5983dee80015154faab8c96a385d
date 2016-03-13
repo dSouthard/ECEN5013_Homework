@@ -1,0 +1,179 @@
+/*
+ * timer.c
+ *
+ *  Created on: Mar 9, 2016
+ *      Author: 1118648
+ */
+
+
+/*
+ * Timer.c
+ *
+ *  Created on: Mar 7, 2016
+ *      Author: Diana Southard
+ */
+
+#include "timer.h"
+#include "MKL25Z4.h"
+#include <stdlib>
+
+
+volatile uint32_t profilerCounter; 		// Used for profiling
+double phase, portion;				// Used for LED Fading
+
+void initializeClock(){
+
+	/**
+	 * @brief Setup the microcontroller system.
+	 *
+	 * Typically this function configures the oscillator (PLL) that is part of the
+	 * microcontroller device. For systems with variable clock speed it also updates
+	 * the variable SystemCoreClock. SystemInit is called from startup_device file.
+	 */
+	SystemInit();	// Initialize the system
+
+
+	/**
+	 * @brief Updates the SystemCoreClock variable.
+	 *
+	 * It must be called whenever the core clock is changed during program
+	 * execution. SystemCoreClockUpdate() evaluates the clock register settings and calculates
+	 * the current core clock.
+	 */
+	void SystemCoreClockUpdate (void);
+
+	/*
+	 * Enable the internal 4 MHz clock clock and select it as the MCGIRCLK clock
+	 */
+    MCG_BASE_PTR->C1 = MCG_C1_IREFS_MASK | MCG_C1_IRCLKEN_MASK;
+    MCG_BASE_PTR->C2 = MCG_C2_IRCS_MASK; 									//Select fast internal clock
+
+    // Send the clock signal to TPM0, TPM1, and TPM2
+    SIM_BASE_PTR->SCGC6 |= SIM_SCGC6_TPM0_MASK | SIM_SCGC6_TPM1_MASK | SIM_SCGC6_TPM2_MASK;
+    SIM_BASE_PTR->SOPT2 |= SIM_SOPT2_TPMSRC(3);								// TPM Clock source select: 3 = MCGIRCLK
+}
+
+
+void setupTPM() {
+	/******* FIRST: Setup TPM Clocks **********/
+
+	/* LED Timers: slow enough to be seen by the human eye, fast
+	 * enough to be a seamless fade --> 200Hz frequency (200 ticks/sec)
+	 *
+	 * Accomplished by dividing the fast 4 MHz clock by 128 by setting
+	 * the prescaler bits to 7 [DIVIDE_BY_128] and further divide it by
+	 * 155 setting the modulus register to 154 [DIVIDE_TO_200HZ]
+	 *
+	 * 4 MHz / 128 / 155 = ~200Hz (201.61Hz)
+	 */
+
+	// TPM0: Used to toggle blue LED
+    TPM0_BASE_PTR->SC = TPM_SC_CMOD(1) | TPM_SC_PS(DIVIDE_BY_128);
+    TPM0_BASE_PTR->MOD = DIVIDE_TO_200HZ;
+
+    // TPM2: Used to toggle green/red LEDs
+    TPM2_BASE_PTR->SC = TPM_SC_CMOD(1) | TPM_SC_PS(DIVIDE_BY_128);
+    TPM2_BASE_PTR->MOD = DIVIDE_TO_200HZ;
+
+    /*
+     * Profiling timer: required to have 10us period -> 100 kHz
+	 * Accomplished by dividing the fast 4 MHz clock by 8 by setting
+	 * the prescaler bits to 3 [DIVIDE_BY_8] and further divide it by
+	 * 5 setting the modulus register to 4 [DIVIDE_TO_10kHZ]
+	 *
+	 * 4 MHz / 8 / 5 = 100 kHz
+     */
+    // TPM1: Used to profile functions
+    TPM1_BASE_PTR->SC = TPM_SC_CMOD(1) | TPM_SC_PS(DIVIDE_BY_8);
+    TPM1_BASE_PTR->MOD = DIVIDE_TO_10kHZ;
+
+
+    /* PORTB clock is enabled by writing to the SGC5 register. Turn on clock gating to PortB
+    * module (red and green LEDs) and PortD module (blue LED)
+    */
+    SIM_BASE_PTR->SCGC5 |= SIM_SCGC5_PORTB_MASK| SIM_SCGC5_PORTD_MASK;
+
+
+
+    /******* SECOND: Setup TPM in PWM Mode **********/
+    /*
+    * Configure the timer in the PWM mode to manually change the value of the PTB18/19 [red/blue] pins
+    * The PTB18 and PTB19 pins are multiplexed with channel 0 of the TPM2 module. Switch the pins to
+    * be the TPM outputs instead of normal GPIO pins by writing the PCR register.
+    */
+    PORTB_BASE_PTR->PCR[RED_PIN] = PORTB_BASE_PTR->PCR[GREEN_PIN] = PORT_PCR_MUX(TPM_OUTPUT_SELECTION);
+
+    /*
+    * Do the same for PTD1 [blue] pin
+    */
+    PORTD_PCR1  = PORT_PCR_MUX(4);  // TPM0_CH1 enable on PTD1  (blue)
+    PTB_BASE_PTR->PDDR = 1 << RED_PIN;	// Configure Red Pin to be output
+
+
+    /*
+    * Configure TPM0/TPM2 to run in the PWM mode and generate short impulses (1/8 of the timer period)
+    *
+    */
+    TPM2_BASE_PTR->CONTROLS[RED_LED].CnSC = TPM_CnSC_MSB_MASK | TPM_CnSC_ELSA_MASK;
+    TPM2_BASE_PTR->CONTROLS[GREEN_LED].CnSC = TPM_CnSC_MSB_MASK | TPM_CnSC_ELSA_MASK;
+    TPM0_BASE_PTR->CONTROLS[BLUE_LED].CnSC = TPM_CnSC_MSB_MASK | TPM_CnSC_ELSA_MASK;
+
+
+    /******* THIRD : Set default LED values  = Off initially  **********/
+    TPM2_BASE_PTR->CONTROLS[RED_LED].CnV = 0x0;
+    TPM2_BASE_PTR->CONTROLS[GREEN_LED].CnV = 0x0;
+    TPM0_BASE_PTR->CONTROLS[BLUE_LED].CnV = 0x0;
+
+
+    /******* LAST : Enable interrupts  **********/
+    NVIC_EnableIRQ(TPM0_IRQn);	// Use TPM1 for profiler timer
+    NVIC_EnableIRQ(TPM1_IRQn);	// Use TPM1 for profiler timer
+
+}
+
+
+void TPM1_IRQHandler(){
+	// Handler for TPM1 interrupts
+	__disable_irq(); // Temporarily disable other interrupts
+
+	if (TPM1_BASE_PTR->CONTROLS[PROFILER_INTERRUPT].CnSC & TPM_CnSC_CHF_MASK)
+	     {
+	         //Writing to the CHF bit clears the interrupt
+	         TPM1_BASE_PTR->CONTROLS[PROFILER_INTERRUPT].CnSC |= TPM_CnSC_CHF_MASK;
+
+	         // Increment counter used for profiling
+	         profilerCounter++;
+	     }
+
+		// Clear this interrupt
+	     NVIC_ClearPendingIRQ(TPM1_IRQn);
+
+	     // Reenable other interrupts
+	     __enable_irq();
+}
+
+void TPM0_IRQHandler(){
+	// Handler for TPM0 interrupts: LED fading
+	__disable_irq(); // Temporarily disable other interrupts
+
+	if (TPM0_BASE_PTR->CONTROLS[LED_INTERRUPT].CnSC & TPM_CnSC_CHF_MASK)
+	     {
+	         //Writing to the CHF bit clears the interrupt
+	         TPM0_BASE_PTR->CONTROLS[LED_INTERRUPT].CnSC |= TPM_CnSC_CHF_MASK;
+
+	         // Increment counter used for LED Fading
+	         portion = 0.5 + sin(phase) / 2;
+	         TPM2_BASE_PTR->CONTROLS[RED_LED].CnV = TPM2_BASE_PTR->MOD * portion;
+	         TPM2_BASE_PTR->CONTROLS[GREEN_LED].CnV = TPM2_BASE_PTR->MOD * portion/2;
+	         TPM0_BASE_PTR->CONTROLS[BLUE_LED].CnV = TPM0_BASE_PTR->MOD * portion/4;
+
+	         phase += 0.5;
+	     }
+
+		// Clear this interrupt
+	     NVIC_ClearPendingIRQ(TPM0_IRQn);
+
+	     // Reenable other interrupts
+	     __enable_irq();
+}
+
