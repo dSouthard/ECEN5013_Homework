@@ -19,6 +19,8 @@
  *
  */
 char getCharacter(int digit) {
+	if (digit < 0 || digit > 9)
+		return '0';	// default behavior if number is out of range
 	char numberString [] = "0123456789";
 	return numberString[digit];
 }
@@ -115,131 +117,110 @@ int itoa(int data, char* returnBuffer, int bufferSize){
  */
 
 int ftoa(float data, unsigned int precision, char* returnBuffer, int bufferSize){
-	char * ptr = returnBuffer;
-		char * p = ptr;
-		char * p1;
-		char c;
-		long intPart;
+	char * startPointer = returnBuffer;
+	char * tmpPointer;
+	char tmpChar;
+	long intPart, size = 3;
 
-		// check precision bounds
-		if (precision > MAX_PRECISION)
-			precision = MAX_PRECISION;
+	// check precision bounds
+	if (precision > MAX_PRECISION)
+		precision = MAX_PRECISION;
 
-		// sign stuff
-		if (data < 0)
+	if (precision < 0)  // negative precision == automatic precision guess
+	{
+		if (data < 1.0) precision = 6;
+		else if (data < 10.0) precision = 5;
+		else if (data < 100.0) precision = 4;
+		else if (data < 1000.0) precision = 3;
+		else if (data < 10000.0) precision = 2;
+		else if (data < 100000.0) precision = 1;
+		else precision = 0;
+	}
+
+	// Check for negative value
+	if (data < 0)
+	{
+		data = -data;
+		*returnBuffer++ = '-';
+		size++;
+	}
+
+	// Round value according the precision
+	if (precision)
+		data += rounders[precision];
+
+	// Separate integer and decimal parts
+	intPart = data;		// Integer Part
+	data -= intPart;	// Leftover = decimal part
+
+	// Check for buffer overflow.
+	long intCopy = intPart;
+
+	// Check integer digits for required size
+	while (intCopy > 10) {
+		intCopy /= 10;
+		size++;
+	}
+
+	// Add desired precision digits to required size
+	size += precision;
+
+	if (size > bufferSize)
+		return -1;
+
+	// Check if integer part == 0
+	if (!intPart)
+		*returnBuffer++ = '0';
+
+	else
+	{
+		// save start pointer
+		startPointer = returnBuffer;
+
+		// convert (reverse order)
+		while (intPart)
 		{
-			data = -data;
-			*ptr++ = '-';
+			*startPointer++ = '0' + intPart % 10;
+			intPart /= 10;
 		}
 
-		if (precision < 0)  // negative precision == automatic precision guess
+		// save end position
+		tmpPointer = startPointer;
+
+		// reverse result
+		while (startPointer > returnBuffer)
 		{
-			if (data < 1.0) precision = 6;
-			else if (data < 10.0) precision = 5;
-			else if (data < 100.0) precision = 4;
-			else if (data < 1000.0) precision = 3;
-			else if (data < 10000.0) precision = 2;
-			else if (data < 100000.0) precision = 1;
-			else precision = 0;
+			tmpChar = *--startPointer;
+			*startPointer = *returnBuffer;
+			*returnBuffer++ = tmpChar;
 		}
 
-		// round value according the precision
-		if (precision)
-			data += rounders[precision];
+		// restore end position
+		returnBuffer = tmpPointer;
+	}
 
-		// integer parst...
-		intPart = data;
-		data -= intPart;
+	// decimal part
+	if (precision)
+	{
+		// place decimal point
+		*returnBuffer++ = '.';
 
-		if (!intPart)
-			*ptr++ = '0';
-		else
+		// convert
+		while (precision--)
 		{
-			// save start pointer
-			p = ptr;
-
-			// convert (reverse order)
-			while (intPart)
-			{
-				*p++ = '0' + intPart % 10;
-				intPart /= 10;
-			}
-
-			// save end position
-			p1 = p;
-
-			// reverse result
-			while (p > ptr)
-			{
-				c = *--p;
-				*p = *ptr;
-				*ptr++ = c;
-			}
-
-			// restore end position
-			ptr = p1;
+			data *= 10.0;
+			tmpChar = data;
+			*returnBuffer++ = '0' + tmpChar;
+			data -= tmpChar;
 		}
+	}
 
-		// decimal part
-		if (precision)
-		{
-			// place decimal point
-			*ptr++ = '.';
+	// terminating character
+	*returnBuffer = '\0';
 
-			// convert
-			while (precision--)
-			{
-				data *= 10.0;
-				c = data;
-				*ptr++ = '0' + c;
-				data -= c;
-			}
-		}
-
-		// terminating zero
-		*ptr = 0;
-
-		return returnBuffer;
+	return returnBuffer;
 
 }
 
 
-int main () {
 
-	float test1 = 123.45567;
-	float test2 = -0.0344;
-	float test3 = 123512.3523;
-
-	char test1Print[40];
-	ftoa(test1,4,test1Print,40);
-
-	char test2Print[40];
-	ftoa(test2,4,test2Print,40);
-	char test3Print[40];
-	ftoa(test3,4,test3Print,40);
-
-	printf("1: %s \n", test1Print);
-	printf("2: %s \n", test2Print);
-	printf("3: %s \n", test3Print);
-
-	float test1i = 123;
-	float test2i = -344;
-	float test3i = 12356875;
-
-	char print1i[20];
-	itoa(test1i, print1i, 20);
-	printf("1: %s \n", print1i);
-
-	char print2i[10];
-	itoa(test2i, print2i, 10);
-	printf("2: %s \n", print2i);
-
-	char print3i [20];
-	itoa(test3i, print3i, 20);
-	printf("3: %s \n", print3i);
-
-	printf("1: %s \n", print1i);
-	printf("2: %s \n", print2i);
-
-	return 0;
-}
