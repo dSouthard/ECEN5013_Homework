@@ -95,7 +95,7 @@ uint8_t CircBuffRemove(CircBuff * buffer, void * item){
 /*
  * Reset buffer -- all items are dropped
  */
-uint8_t CircBuffClean(CircBuff * buffer){
+uint8_t CircBuffReset(CircBuff * buffer){
 	// Check for non-null pointer
 	if (buffer == NULL)
 		return -1;

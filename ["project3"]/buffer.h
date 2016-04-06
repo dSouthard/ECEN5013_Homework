@@ -24,7 +24,7 @@ typedef struct stCircBuff {
 	size_t size;		// Size of buffer
 	size_t itemSize;	// Size of each item (bytes)
 	size_t capacity;	// Desired capacity of buffer
-	size_t itemCount;	// Current number of items in buffer
+	uint_32 itemCount;	// Current number of items in buffer
 } CircBuff;
 
 /*
@@ -46,7 +46,7 @@ uint8_t CircBuffRemove(CircBuff * buffer);
 /*
  * Reset buffer -- all items are dropped
  */
-uint8_t CircBuffClean(CircBuff * buffer);
+uint8_t CircBuffReset(CircBuff * buffer);
 
 /*
  * Free memory allocated for buffer

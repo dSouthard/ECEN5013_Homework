@@ -48,7 +48,12 @@ static const double rounders[MAX_PRECISION + 1] =
  * needs to represent integer types of data in 1,2, or 4 byte types
  * for each individual conversion of variables.
  */
-int itoa(int data, char* returnBuffer, int bufferSize){
+char* itoa(int data){
+	// Check for 0
+	if (data == 0) {
+		return "0";
+	}
+
 	// size = at least 2: 1 for data, 1 for terminating character
 	int size = 2, isNegative = 0;
 
@@ -59,10 +64,6 @@ int itoa(int data, char* returnBuffer, int bufferSize){
 		size++; 	// Reserved a place for the negative sign
 	}
 
-	// Check for 0
-	if (data == 0)
-		returnBuffer[0] = '0';
-
 	// Find size of return string
 	int dataCopy = data;
 	while (dataCopy > 10) {
@@ -70,8 +71,7 @@ int itoa(int data, char* returnBuffer, int bufferSize){
 		size++;
 	}
 
-	if (size > bufferSize)
-		return -1;
+	char returnBuffer[size];
 
 	int index = size-1;
 
@@ -94,9 +94,54 @@ int itoa(int data, char* returnBuffer, int bufferSize){
 		returnBuffer[index] = '-';
 
 	// Return ASCII string
-	return 0;
+	return returnBuffer;
 }
 
+/*
+ * uitoa(): unsigned integer to ASCII
+ *
+ * Take unsigned integer data and convert it to ASCII string. The string then
+ * needs to represent integer types of data in 1,2, or 4 byte types
+ * for each individual conversion of variables.
+ */
+char* uitoa(unsigned int data){
+	// Check for 0
+	if (data == 0) {
+		return "0";
+	}
+
+	// size = at least 2: 1 for data, 1 for terminating character
+	int size = 2;
+
+	// Find size of return string
+	int dataCopy = data;
+	while (dataCopy > 10) {
+		dataCopy /= 10;
+		size++;
+	}
+
+	char returnBuffer[size];
+
+	int index = size-1;
+
+	// Add terminating character
+	returnBuffer[index] = '\0';
+	index--;
+
+	int digit;	// Used to track individual digit conversion
+
+	// Start filling the returnBuffer from the back (LSB)
+	while (data != 0 && index >= 0) {
+		digit = data%10;
+		data -= digit;
+		data /= 10;
+		returnBuffer[index] = getCharacter(digit);
+		index-- ;
+	}
+
+	// Return ASCII string
+	return returnBuffer;
+}
 
 /*
  * ftoa(): float to ASCII
@@ -116,11 +161,18 @@ int itoa(int data, char* returnBuffer, int bufferSize){
  *
  */
 
-int ftoa(float data, unsigned int precision, char* returnBuffer, int bufferSize){
-	char * startPointer = returnBuffer;
-	char * tmpPointer;
-	char tmpChar;
-	long intPart, size = 3;
+char* ftoa(float data, int precision){
+	// Check for special cases
+	if (isnan(data))
+		return "nan";
+	if (isinf(data))
+		return "inf";
+	if (data == 0)
+		return "0.0";
+
+	printf("Input value is: %f \tWith %d precision\n", data, precision);
+	long intPart, size = 2; // Size spots: decimal termination
+	int isNegative = 0;
 
 	// check precision bounds
 	if (precision > MAX_PRECISION)
@@ -138,11 +190,10 @@ int ftoa(float data, unsigned int precision, char* returnBuffer, int bufferSize)
 	}
 
 	// Check for negative value
-	if (data < 0)
-	{
+	if (data < 0) {
 		data = -data;
-		*returnBuffer++ = '-';
-		size++;
+		isNegative = 1;
+		size++; // Reserve a spot for '-' sign
 	}
 
 	// Round value according the precision
@@ -153,7 +204,7 @@ int ftoa(float data, unsigned int precision, char* returnBuffer, int bufferSize)
 	intPart = data;		// Integer Part
 	data -= intPart;	// Leftover = decimal part
 
-	// Check for buffer overflow.
+	// Determine buffer size.
 	long intCopy = intPart;
 
 	// Check integer digits for required size
@@ -163,60 +214,63 @@ int ftoa(float data, unsigned int precision, char* returnBuffer, int bufferSize)
 	}
 
 	// Add desired precision digits to required size
-	size += precision;
+	if (precision)
+		size += precision + 1;	// Add 1 to account for decimal point
 
-	if (size > bufferSize)
-		return -1;
+	char returnBuffer[size];
+	printf("Size is: %d\n", size);
+
+	// Pointers to help with arithmetic later
+	char * bufferPointer = returnBuffer; // Point to start of buffer
+
+	// Add '-' if necessary
+	if (isNegative) {
+		*bufferPointer = '-';
+		bufferPointer++;
+	}
 
 	// Check if integer part == 0
-	if (!intPart)
-		*returnBuffer++ = '0';
+	if (!intPart) {
+		*bufferPointer = '0';	// Put 0 in buffer
+		bufferPointer++;
+	}
 
 	else
 	{
-		// save start pointer
-		startPointer = returnBuffer;
-
-		// convert (reverse order)
-		while (intPart)
-		{
-			*startPointer++ = '0' + intPart % 10;
-			intPart /= 10;
-		}
-
-		// save end position
-		tmpPointer = startPointer;
-
-		// reverse result
-		while (startPointer > returnBuffer)
-		{
-			tmpChar = *--startPointer;
-			*startPointer = *returnBuffer;
-			*returnBuffer++ = tmpChar;
-		}
-
-		// restore end position
-		returnBuffer = tmpPointer;
+		char *tmpPointer;
+		// Convert integer part and copy to buffer
+		tmpPointer = itoa(intPart);
+		strcpy(bufferPointer, tmpPointer);
+		bufferPointer += strlen(tmpPointer);
 	}
 
 	// decimal part
-	if (precision)
+	if (precision) 	// Desired to show decimal portion
 	{
 		// place decimal point
-		*returnBuffer++ = '.';
+		*bufferPointer = '.';
+		bufferPointer++;
 
 		// convert
-		while (precision--)
-		{
-			data *= 10.0;
-			tmpChar = data;
-			*returnBuffer++ = '0' + tmpChar;
-			data -= tmpChar;
+		int digit;
+		while (precision > 0 && bufferPointer < &returnBuffer[size-1]){
+			if (data == 0.0) {
+				*bufferPointer = '0';
+			}
+			else {
+				data *= 10.0;					// Bring next digit out
+				digit = data;					// Grab integer part
+				*bufferPointer = getCharacter(digit);	// Convert to character
+				data -= digit;					// Delete part that was just converted
+			}
+			bufferPointer++;					// Increment pointer
+			precision--;
 		}
 	}
 
+	printf("Final string: %s\n", returnBuffer);
 	// terminating character
-	*returnBuffer = '\0';
+	returnBuffer[size-1] = '\0';
 
 	return returnBuffer;
 

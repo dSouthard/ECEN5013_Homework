@@ -10,8 +10,6 @@
 #ifndef CONVERT_H_
 #define CONVERT_H_
 
-#include <stdint.h>
-
 // Implement the functions itoa() and ftoa()
 
 /*
@@ -22,7 +20,10 @@
  * for each individual conversion of variables.
  */
 
-char* itoa(int8_t* data, int8_t base);
+char* itoa(int data);
+
+// uitoa: itoa for unsigned integers
+char* uitoa(unsigned data);
 
 /*
  * ftoa(): float to ASCII
@@ -32,6 +33,9 @@ char* itoa(int8_t* data, int8_t base);
  * string. Must take into account the sign bit, may decide on how to
  * control the precision of display.
  */
-char* ftoa(float data);
+char* ftoa(float data, int precision);
+
+// Helper function
+char getCharacter(int digit);
 
 #endif /* CONVERT_H_ */

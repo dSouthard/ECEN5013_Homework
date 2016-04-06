@@ -60,4 +60,6 @@ void sendUART(char sendChar);
 // This function will be called by Rx Interrupt
 char receiveUART();
 
+// Demonstrate that data can be printed to the serial terminal
+void UARTtestPrinting();
 #endif /* UART_H_ */

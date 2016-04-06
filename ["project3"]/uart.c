@@ -8,9 +8,11 @@
  */
 
 #include "uart.h"
+#include "log.h"
 #include "MKL25Z4.h" /* include peripheral declarations */
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 // Initialize UART
 void InitUART0(){
@@ -93,4 +95,38 @@ char UARTreceiveChar(){
 	// Check if finished and wait until byte received
 	while(!(UART0->S1 & UART_S1_RDRF_MASK)); //Wait until full
 	return UART0->D;
+}
+
+// Demonstrate that data can be printed to the serial terminal
+void UARTtestPrinting() {
+	// Setup provided data to print to the terminal
+	// Test Strings
+	char testString[] = "Testing123, Serial Print Test, no params";
+	char testInteger[] = "This is an integer";
+	char testFloating[] = "This is a floating point number";
+
+	// Test parameters
+	int8_t test8 = 200;
+	int16_t test16 = 4096;
+	int32_t test32 = 123456;
+	float testFloat = 1543.321;
+
+	// Print to terminal
+	UARTlog(testString, strlen[testString]);
+	UARTlogParam(testInteger, strlen(testInteger),test8, INT8);
+	UARTlogParam(testInteger, strlen(testInteger),test16, INT16);
+	UARTlogParam(testInteger, strlen(testInteger),test32, INT32);
+	UARTlogParam(testFloating, strlen(testFloating),testFloat, FLOAT);
+
+	// Show that you will be able to concatenate ASCII Strings
+	// Make string with extra space
+	char testConcat[50] = "Test concatenation, part 1; ";
+	char testConcast2 = "part2";
+	UARTlog(testConcat, strlen[testConcat]);
+	UARTlog(testConcast2, strlen[testConcast2]);
+
+	// Concatenate the two strings
+	strcat(testConcat, testConcast2);
+	UARTlog(testConcat, strlen[testConcat]);
+
 }
