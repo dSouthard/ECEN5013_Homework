@@ -112,21 +112,21 @@ void UARTtestPrinting() {
 	float testFloat = 1543.321;
 
 	// Print to terminal
-	UARTlog(testString, strlen[testString]);
-	UARTlogParam(testInteger, strlen(testInteger),test8, INT8);
-	UARTlogParam(testInteger, strlen(testInteger),test16, INT16);
-	UARTlogParam(testInteger, strlen(testInteger),test32, INT32);
-	UARTlogParam(testFloating, strlen(testFloating),testFloat, FLOAT);
+	UARTlog(testString, strlen(testString));
+	UARTlogParam(testInteger, strlen(testInteger),&test8, INT8);
+	UARTlogParam(testInteger, strlen(testInteger),&test16, INT16);
+	UARTlogParam(testInteger, strlen(testInteger),&test32, INT32);
+	UARTlogParam(testFloating, strlen(testFloating),&testFloat, FLOAT);
 
 	// Show that you will be able to concatenate ASCII Strings
 	// Make string with extra space
 	char testConcat[50] = "Test concatenation, part 1; ";
-	char testConcast2 = "part2";
-	UARTlog(testConcat, strlen[testConcat]);
-	UARTlog(testConcast2, strlen[testConcast2]);
+	char testConcast2[] = "part2";
+	UARTlog(testConcat, strlen(testConcat));
+	UARTlog(testConcast2, strlen(testConcast2));
 
 	// Concatenate the two strings
 	strcat(testConcat, testConcast2);
-	UARTlog(testConcat, strlen[testConcat]);
+	UARTlog(testConcat, strlen(testConcat));
 
 }

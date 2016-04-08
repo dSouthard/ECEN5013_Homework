@@ -8,11 +8,14 @@
  */
 #include "log.h"
 #include "uart.h"
+#include "convert.h"
+#include <stdint.h>
+#include <stddef.h>
 
 #ifdef VERBOSE
 
 // Function to log just a simple string
-void UARTlog(unit8_t *string, size_t length){
+void UARTlog(uint8_t *string, size_t length){
 	// Iterate through string, sending characters individually
 	size_t index = 0;
 
@@ -26,7 +29,7 @@ void UARTlog(unit8_t *string, size_t length){
 
 
 // Function to log just a simple string with a parameter
-void UARTlogParam(unit8_t *string, size_t length, void* param, DataType dataType){
+void UARTlogParam(uint8_t *string, size_t length, void * param, DataType dataType){
 	// Iterate through string, sending characters individually
 	size_t index = 0;
 
@@ -42,40 +45,48 @@ void UARTlogParam(unit8_t *string, size_t length, void* param, DataType dataType
 
 	// Determine which conversion function to use
 	switch (dataType) {
-	case INT8:
-		int data = *((int8_t *)param);
+	case INT8: {
+		int data = *(int8_t *)param;
 		secondString = itoa(data);
 		break;
-	case INT16:
-		int data = *((int16_t *)param);
+	}
+	case INT16: {
+		int data = *(int16_t *)param;
 		secondString = itoa(data);
 		break;
-	case INT32:
+	}
+	case INT32: {
 		int data = *((int32_t *)param);
 		secondString = itoa(data);
 		break;
-	case UINT8:
+	}
+	case UINT8: {
 		unsigned int udata = *((uint8_t *)param);
-		secondString = uitoa(data);
+		secondString = uitoa(udata);
 		break;
-	case UINT16:
+	}
+	case UINT16:{
 		unsigned int udata = *((uint16_t *)param);
-		secondString = uitoa(data);
+		secondString = uitoa(udata);
 		break;
-	case UINT32:
+	}
+	case UINT32:{
 		unsigned int udata = *((uint32_t *)param);
-		secondString = uitoa(data);
+		secondString = uitoa(udata);
 		break;
-	case FLOAT:
-		secondString = ftoa(param);
+	}
+	default:{
+		secondString = ftoa(*(float *)param, -1);
 		break;
+	}
 	}
 
 	// Send second converted string
 	index = 0;
 
-	for ( ; secondString[index] != '\0'; index++) {
-		UARTsendChar(secondString[index]);
+	while( *secondString != '\0') {
+		UARTsendChar(secondString);
+		secondString++;
 	}
 
 	// Add new line for readability

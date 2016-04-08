@@ -7,11 +7,12 @@
 
 
 #include "unitTest.h"
-#include"buffer.h"
-#include "log.c"
+#include "buffer.h"
+#include "log.h"
+#include <string.h>
 
 // Use characters == 1-byte each
-static const char testItems [BUFFER_CAPACITY] = {'E', 'C', 'E', 'N', '5', '0', '1', '3'};
+static char testItems [BUFFER_CAPACITY] = {'E', 'C', 'E', 'N', '5', '0', '1', '3'};
 
 uint8_t runFillTest(CircBuff *testBuff) {
 	// Ensure buffer is reset
@@ -46,8 +47,9 @@ uint8_t runEmptyTest(CircBuff *testBuff) {
 	}
 
 	// Empty buffer
+	char testItemsRemove;
 	for (index = 0; index < BUFFER_CAPACITY; index++){
-		result = CircBuffRemove(testBuff);
+		result = CircBuffRemove(testBuff, &testItemsRemove);
 		// Test failure, couldn't empty buffer
 		if (result)
 			return -1;
@@ -100,16 +102,18 @@ uint8_t runOverEmptyTest(CircBuff *testBuff) {
 	// Show that buffer is full
 	UARTlogParam(BUFFER_SIZE_STRING, strlen(BUFFER_SIZE_STRING), &testBuff->itemCount, UINT32);
 
+	char testItemsRemove;
+
 	// Empty buffer
 	for (index = 0; index < BUFFER_CAPACITY; index++){
-		CircBuffRemove(testBuff);
+		CircBuffRemove(testBuff, &testItemsRemove);
 	}
 
 	// Show that buffer is empty
 	UARTlogParam(BUFFER_SIZE_STRING, strlen(BUFFER_SIZE_STRING), &testBuff->itemCount, UINT32);
 
 	// Attempt to empty one more
-	result = CircBuffRemove(testBuff);
+	result = CircBuffRemove(testBuff, &testItemsRemove);
 
 	if (result == 0)
 		// Should have error flag set, attempted to over-fill buffer
@@ -134,9 +138,10 @@ uint8_t runBoundaryTest(CircBuff *testBuff) {
 	// Show that buffer is full
 	UARTlogParam(BUFFER_SIZE_STRING, strlen(BUFFER_SIZE_STRING), &testBuff->itemCount, UINT32);
 
+	char testItemsRemove;
 	// Partly empty the buffer
 	for (index = 0; index < BUFFER_CAPACITY*0.5; index++) {
-		CircBuffRemove(testBuff);
+		CircBuffRemove(testBuff, &testItemsRemove);
 	}
 
 	// Show that buffer is partly-full
@@ -164,7 +169,7 @@ void runAllTests() {
 	CircBuff *testBuff;
 	InitCircBuff(testBuff, ITEM_SIZE, BUFFER_CAPACITY);
 
-	uint8_t results[NUMBER_OF_TESTS] = 0;
+	uint8_t results[NUMBER_OF_TESTS];
 	uint8_t index = 0;
 	char* message;
 
@@ -233,7 +238,7 @@ void runAllTests() {
 	// If there were a failure
 	if (tally > 0) {
 		message = "FAIL! Number of failed tests";
-		UARTlogParam(message, strlen(message), tally, UINT8);
+		UARTlogParam(message, strlen(message), &tally, UINT8);
 	}
 	else {
 		message = "PASS! Passed all tests:";

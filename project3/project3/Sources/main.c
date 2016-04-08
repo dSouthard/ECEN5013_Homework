@@ -8,8 +8,8 @@
  */
 
 #include "unitTest.h"
-#include "convert.c"
-#include "log.c"
+#include "convert.h"
+#include "log.h"
 #include "uart.h"
 
 int main() {

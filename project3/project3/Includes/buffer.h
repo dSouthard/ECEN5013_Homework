@@ -8,6 +8,9 @@
 #ifndef BUFFER_H_
 #define BUFFER_H_
 
+#include <stdint.h>
+#include <stddef.h>
+
 /*
  * Design a circular buffer data structure that will track a sequence of Transmit characters as well as
  * sequence of receive characters into a holding buffer. It should hold data needed to write/read data
@@ -24,7 +27,7 @@ typedef struct stCircBuff {
 	size_t size;		// Size of buffer
 	size_t itemSize;	// Size of each item (bytes)
 	size_t capacity;	// Desired capacity of buffer
-	uint_32 itemCount;	// Current number of items in buffer
+	uint32_t itemCount;	// Current number of items in buffer
 } CircBuff;
 
 /*
@@ -41,7 +44,7 @@ uint8_t CircBuffInsert(CircBuff * buffer, void* item);
 /*
  * Remove item from buffer
  */
-uint8_t CircBuffRemove(CircBuff * buffer);
+uint8_t CircBuffRemove(CircBuff * buffer,void *item);
 
 /*
  * Reset buffer -- all items are dropped

@@ -6,9 +6,10 @@
  *
  */
 
-#include<stdio.h>
-#include<math.h>
-#include<string.h>
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include "convert.h"
 
 #define MAX_PRECISION 		10 	// The highest precision to display purely decimal digits
 
@@ -48,7 +49,7 @@ static const double rounders[MAX_PRECISION + 1] =
  * needs to represent integer types of data in 1,2, or 4 byte types
  * for each individual conversion of variables.
  */
-char* itoa(int data){
+char * itoa(int data){
 	// Check for 0
 	if (data == 0) {
 		return "0";
@@ -94,7 +95,8 @@ char* itoa(int data){
 		returnBuffer[index] = '-';
 
 	// Return ASCII string
-	return returnBuffer;
+	char* returnPnt = returnBuffer;
+	return returnPnt;
 }
 
 /*
@@ -104,7 +106,7 @@ char* itoa(int data){
  * needs to represent integer types of data in 1,2, or 4 byte types
  * for each individual conversion of variables.
  */
-char* uitoa(unsigned int data){
+char * uitoa(unsigned int data){
 	// Check for 0
 	if (data == 0) {
 		return "0";
@@ -140,7 +142,8 @@ char* uitoa(unsigned int data){
 	}
 
 	// Return ASCII string
-	return returnBuffer;
+	char* returnPointer = returnBuffer;
+	return returnPointer;
 }
 
 /*
@@ -161,16 +164,15 @@ char* uitoa(unsigned int data){
  *
  */
 
-char* ftoa(float data, int precision){
+char * ftoa(float data, int precision){
 	// Check for special cases
 	if (isnan(data))
-		return "nan";
+		return "NAN";
 	if (isinf(data))
-		return "inf";
+		return "INF";
 	if (data == 0)
 		return "0.0";
 
-	printf("Input value is: %f \tWith %d precision\n", data, precision);
 	long intPart, size = 2; // Size spots: decimal termination
 	int isNegative = 0;
 
@@ -206,6 +208,7 @@ char* ftoa(float data, int precision){
 
 	// Determine buffer size.
 	long intCopy = intPart;
+	int exponent = 0;
 
 	// Check integer digits for required size
 	while (intCopy > 10) {
@@ -217,8 +220,31 @@ char* ftoa(float data, int precision){
 	if (precision)
 		size += precision + 1;	// Add 1 to account for decimal point
 
+	if (size > FLOAT_STRING_LENGTH) {
+		// Convert using scientific notation
+		// re-add data
+		data += intPart;
+		// Normalize the data
+		while (data > 10) {
+			data /= 10;
+			exponent++;
+		}
+
+		/* reset size due to normalizing data:
+		 *  +/- 1.pppppppppp * 10^eee /0
+		 *  size =
+		 */
+		int exponentDigits = 1;
+		if (exponent > 10) exponentDigits = 2;
+
+		size = isNegative + 2 + precision + 7 + exponentDigits;
+
+		// split decimal portions again
+		intPart = data;
+		data -= intPart;
+	}
+
 	char returnBuffer[size];
-	printf("Size is: %d\n", size);
 
 	// Pointers to help with arithmetic later
 	char * bufferPointer = returnBuffer; // Point to start of buffer
@@ -244,6 +270,7 @@ char* ftoa(float data, int precision){
 		bufferPointer += strlen(tmpPointer);
 	}
 
+
 	// decimal part
 	if (precision) 	// Desired to show decimal portion
 	{
@@ -268,12 +295,28 @@ char* ftoa(float data, int precision){
 		}
 	}
 
-	printf("Final string: %s\n", returnBuffer);
+	if (exponent) {
+		// Using scientific notation
+		// add space
+		*bufferPointer = ' ';
+		bufferPointer++;
+
+		// Add exponent string
+		char * tmpChar = "* 10^";
+		strcpy(bufferPointer, tmpChar);
+		bufferPointer += strlen(tmpChar);
+
+		// Add exponents
+		tmpChar = itoa(exponent);
+		strcpy(bufferPointer, tmpChar);
+		bufferPointer += strlen(tmpChar);
+	}
+
 	// terminating character
 	returnBuffer[size-1] = '\0';
 
-	return returnBuffer;
-
+	bufferPointer = returnBuffer;
+	return bufferPointer;
 }
 
 

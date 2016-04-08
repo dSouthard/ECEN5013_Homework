@@ -8,6 +8,10 @@
 #ifndef UNITTEST_H_
 #define UNITTEST_H_
 
+#include "unitTest.h"
+#include "buffer.h"
+#include <stddef.h>
+#include <stdint.h>
 
 #define ITEM_SIZE	sizeof(char)
 #define BUFFER_CAPACITY 8

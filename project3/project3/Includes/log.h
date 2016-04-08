@@ -8,7 +8,8 @@
 #ifndef LOG_H_
 #define LOG_H_
 
-#define VERBOSE
+#include <stdint.h>
+#include <stddef.h>
 
 // Enumeration of possible data types
 typedef enum {
@@ -17,8 +18,8 @@ typedef enum {
 	FLOAT					// Floating point
 } DataType;
 
-void UARTlog(unit8_t *str, size_t length);
-void UARTlogParam(unit8_t *str, size_t length, void* param, size_t dataSize);
+void UARTlog(uint8_t *str, size_t length);
+void UARTlogParam(uint8_t *str, size_t length, void* param, DataType dataType);
 
 
 

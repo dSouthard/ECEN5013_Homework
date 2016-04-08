@@ -5,8 +5,11 @@
  *      Author: Diana Southard
  */
 
-
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "buffer.h"
+
 
 /*
  * Initialize the circular buffer
@@ -69,7 +72,7 @@ uint8_t CircBuffInsert(CircBuff * buffer, void* item) {
 /*
  * Remove item from buffer
  */
-uint8_t CircBuffRemove(CircBuff * buffer, void * item){
+uint8_t CircBuffRemove(CircBuff * buffer, void *item){
 	// Check for non-null pointer
 	if (buffer == NULL)
 		return -1;
