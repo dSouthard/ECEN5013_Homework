@@ -20,7 +20,7 @@
 
 #include<stdint.h>
 
-/* Firmware level interface – Create a SPI library that will configure the peripheral, allow sending and receiving data.
+/* Firmware level interface â€“ Create a SPI library that will configure the peripheral, allow sending and receiving data.
  * This should look like (but is not limited to) function calls listed in the following examples, but the design is up to you.
  */
 
