@@ -17,22 +17,74 @@ void SPI_init() {
 	SIM_SCGC5 |= SIM_SCGC5_PORTD_MASK;      //Turn on clock to D module
 	SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;       //Enable SPI0 clock
 
-	PORTD_PCR0 = PORT_PCR_MUX(0x2);    //Set PTD0 to mux 2 [SPI0_PCS0]
-	PORTD_PCR1 = PORT_PCR_MUX(0x2);    //Set PTD1 to mux 2 [SPI0_SCK]
-	PORTD_PCR2 = PORT_PCR_MUX(0x2);    //Set PTD2 to mux 2 [SPI0_MOSI]
-	PORTD_PCR3 = PORT_PCR_MUX(0x2);    //Set PTD3 to mux 2 [SPIO_MISO]
+	// Configure the SPI
 
-	SPI0_C1 = SPI_C1_MSTR_MASK | SPI_C1_SSOE_MASK;   //Set SPI0 to Master & SS pin to auto SS
+	/* Control Register 1
+	 * Enable SPI, disables receive and mode fault interrupts, Disables SPI transmit interrupts, sets the SPI module as a master SPI device
+	 * Configures SPI clock as active-high, First edge on SPSCK at start of first data transfer cycle, Determines SS pin function when mode
+	 * fault enabled, SPI serial data transfers start with most significant bit
+	 */
+	SPI0->C1 = C1_SETTING;
 
-	SPI0_C2 = SPI_C2_MODFEN_MASK;   //Master SS pin acts as slave select output
+	/* Control Register 2
+	 * SPI hardware match interrupt enabled, DMA request disabled, Disables mode fault function, SPI data I/O pin acts as input, DMA request
+	 * disabled, SPI clocks operate in wait mode, Uses separate pins for data input and output
+	 */
+	SPI0->C2 = C2_SETTING;
 
-	SPI0_BR = (SPI_BR_SPPR(0x02) | SPI_BR_SPR(0x08));     //Set baud rate prescale divisor to 3 & set baud rate divisor to 64 for baud rate of 15625 hz
+	/* Baud Rate Register
+	 * Sets prescale divisor to 5, Sets baud rate divisor to 3
+	 * --> 542.25 kHz
+	 */
+	SPI0->BR = BR_SETTING;
 
-	SPI0_C1 |= SPI_C1_SPE_MASK;    //Enable SPI0
+	// Configure the port pins
+	PORTD_PCR0 = PORT_PCR_MUX(MUX1);    // PTD0 pin is configured as GPIO (CE line driven manually)
+	PORTD_PCR1 = PORT_PCR_MUX(MUX2);    // PTD1 pin is SPI0 CLK line
+	PORTD_PCR2 = PORT_PCR_MUX(MUX2);    // PTD2 pin is SPI0 MOSI line
+	PORTD_PCR3 = PORT_PCR_MUX(MUX2);    // PTD3 pin is SPI0 MISO line
+	PORTD_PCR4 = PORT_PCR_MUX(MUX1);    // PTD4 pin is configured as GPIO (CSN line driven manually)
 
+	// Setup CE [PORTD PIN 3] and CSN [PORTD PIN4] pins
+	GPIOD->PDDR |= CE_PIN3 | CSN_PIN4;	   // GPIOD Pin 3/4 set as output to be used as Nordic's CE/CSN connection
 }
+
 
 // Transmit a byte
-void SPI_tx_byte(uint8_t sendByte) {
+void SPIwrite(uint8_t writeByte) {
+	// Wait for SPI Transmit Data Buffer Empty flag (SPTEF) to set
+	while (!(SPI1->S & SPI_S_SPTEF_MASK));
 
+	// Write byte to the data register
+	SPI0->D = writeByte;
 }
+
+// Receive a byte
+uint8_t SPIread() {
+	// Wait for SPI Receive Data Buffer Full flag (SPRF) to set
+	while (!(SPI1->S & SPI_S_SPRF_MASK));
+
+	// return byte
+	return SPI0->D;
+}
+
+// Set CE LOW -- used for signaling Nordic command starts
+void CE_ClrVal() {
+	GPIOD->PCOR |= CE_PIN3;
+}
+
+// Set CE HIGH -- used for signaling Nordic command stops
+void CE_SetVal() {
+	GPIOD->PCOR |= CE_PIN3;
+}
+
+// Set CSN HIGH -- used for signaling Nordic to start sending
+void CSN_SetVal() {
+	GPIOD->PSOR |= CSN_PIN4;
+}
+
+// Set CSN LOW -- used for signaling Nordic to start listening
+void CSN_ClrVal() {
+	GPIOD->PCOR |= CSN_PIN4;
+}
+
