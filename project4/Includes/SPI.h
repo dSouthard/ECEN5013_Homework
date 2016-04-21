@@ -20,20 +20,39 @@
 
 #include<stdint.h>
 
-/* Firmware level interface â€“ Create a SPI library that will configure the peripheral, allow sending and receiving data.
+/* Firmware level interface – Create a SPI library that will configure the peripheral, allow sending and receiving data.
  * This should look like (but is not limited to) function calls listed in the following examples, but the design is up to you.
  */
+
+// definitions for SPI register settings
+#define C1_SETTING 	0x54
+#define C2_SETTING 	0x80
+#define BR_SETTING 	0x21
+
+// definitions for external SPI pins
+#define MUX1 		0x1
+#define MUX2 		0x2
+#define CE_PIN3		0x8
+#define CSN_PIN4 	0x10
 
 // Initialize the SPI module
 void SPI_init();
 
 // Transmit a byte
-void SPI_tx_byte(uint8_t sendByte);
+void SPIwrite(uint8_t writeByte);
 
-//
-void SPI_send_byte();
+// Receive a byte
+uint8_t SPIread();
 
-//
-void SPI_flush();
+// Set CE LOW -- used for signaling Nordic command starts
+void CE_ClrVal();
 
+// Set CE HIGH -- used for signaling Nordic command stops
+void CE_SetVal();
+
+// Set CSN HIGH -- used for signaling Nordic to start sending
+void CSN_SetVal();
+
+// Set CSN LOW -- used for signaling Nordic to start listening
+void CSN_ClrVal();
 #endif /* SPI_H_ */
