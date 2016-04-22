@@ -277,4 +277,9 @@ uint8_t nRFReadRegister(uint8_t reg);				// Read a register value from the trans
 void nRFWriteRegisterBuffer(uint8_t reg, uint8_t *buf, uint8_t bufSize);
 void nRFReadRegisterBuffer(uint8_t reg, uint8_t *buf, uint8_t bufSize);
 
+// Reading/Writing with FIFO buffer
+void nRFWriteFIFO(uint8_t *buf, uint8_t bufSize);
+void nRFReadFIFO(uint8_t *buf, uint8_t bufSize);
+
+
 #endif /* INCLUDES_NRF24L01_H_ */

@@ -1,5 +1,5 @@
 /*
- * spi.h
+ * SPI.h
  *
  * ECEN 5013 Spring 2016
  *
