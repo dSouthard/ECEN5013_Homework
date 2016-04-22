@@ -123,5 +123,29 @@ void nRFReadRegisterBuffer(uint8_t reg, uint8_t *buf, uint8_t bufSize) {
 }
 
 
+/* nRFWriteFIFO
+ * @brief 		Send the buffer to the Tx FIFO and send it
+ * @param buf 	Buffer with data to send
+ * @param buf	Size Size of buffer to send
+ */
+void nRFWriteFIFO(uint8_t *buf, uint8_t bufSize) {
+  nRFWrite(RF24_FLUSH_TX); /* flush old data */
+  nRFWriteRegisterBuffer(RF24_W_TX_PAYLOAD, buf, bufSize); /* write payload */
+  RF_CE_HIGH(); /* start transmission */
+  RF_WAIT_US(15); /* keep signal high for 15 micro-seconds */
+  RF_CE_LOW();  /* back to normal */
+}
+
+/* nRFReadFIFO
+ * @brief 		Receive the Rx payload from the FIFO and stores it in a buffer.
+ * @param buf 	Pointer to the received buffer
+ * @param buf	Size Size of the received buffer
+ */
+void nRFReadFIFO(uint8_t *buf, uint8_t bufSize) {
+  RF_CE_LOW(); /* need to disable rx mode during reading RX data */
+  nRFReadRegisterBuffer(RF24_R_RX_PAYLOAD, buf, bufSize); /* rx payload */
+  RF_CE_HIGH(); /* re-enable rx mode */
+}
+
 
 
