@@ -13,7 +13,7 @@
 #include "MKL25Z4.h"	// Common device definitions
 
 // Initialize the SPI module
-void SPI_init() {
+void SPIinit() {
 	SIM_SCGC5 |= SIM_SCGC5_PORTD_MASK;      //Turn on clock to D module
 	SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;       //Enable SPI0 clock
 
@@ -69,22 +69,22 @@ uint8_t SPIread() {
 }
 
 // Set CE LOW -- used for signaling Nordic command starts
-void CE_ClrVal() {
+void CEClrVal() {
 	GPIOD->PCOR |= CE_PIN3;
 }
 
 // Set CE HIGH -- used for signaling Nordic command stops
-void CE_SetVal() {
+void CESetVal() {
 	GPIOD->PCOR |= CE_PIN3;
 }
 
 // Set CSN HIGH -- used for signaling Nordic to start sending
-void CSN_SetVal() {
+void CSNSetVal() {
 	GPIOD->PSOR |= CSN_PIN4;
 }
 
 // Set CSN LOW -- used for signaling Nordic to start listening
-void CSN_ClrVal() {
+void CSNClrVal() {
 	GPIOD->PCOR |= CSN_PIN4;
 }
 

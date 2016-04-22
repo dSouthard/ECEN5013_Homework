@@ -26,7 +26,7 @@ int main() {
 	nRFConfig(); 			/* set CE and CSN to initialization value */
 
 	// Initialize SPI Modules
-	SPI_init();
+	SPIinit();
 
 	/* Things to show:
 	 * CONFIG register (read/write)
